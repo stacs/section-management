@@ -1,0 +1,12 @@
+[
+  {
+    "id": 2,
+    "name": "My Second Awesome Canvas Course",
+    "sis_course_id": "my-sis-course-2",
+    "term": {
+      "id": 2,
+      "name": "Fall 2023",
+      "sis_term_id": "1238"
+    }
+  }
+]

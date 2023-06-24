@@ -1,0 +1,19 @@
+server:
+  servlet:
+    context-path: /lts-roster-management
+
+spring:
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:h2:mem:test}
+    username: ${JDBC_DATABASE_USERNAME:sa}
+    password: ${JDBC_DATABASE_PASSWORD:password}
+  mvc:
+    servlet:
+      load-on-startup: 1
+
+ltitool:
+  baseUrl: https://localhost
+  canvas:
+    apiUrl: https://localhost/api/v1
+    apiToken: 1234
+    apiTimeout: 15
