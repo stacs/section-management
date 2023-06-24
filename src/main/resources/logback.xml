@@ -1,0 +1,22 @@
+<configuration>
+    <appender name="gelf" class="biz.paluch.logging.gelf.logback.GelfLogbackAppender">
+        <host>udp:stacs-log-s.its.virginia.edu</host>
+        <port>12201</port>
+        <version>1.1</version>
+        <facility>lti-1.3-example</facility>
+        <extractStackTrace>true</extractStackTrace>
+        <filterStackTrace>true</filterStackTrace>
+        <mdcProfiling>true</mdcProfiling>
+        <timestampPattern>yyyy-MM-dd HH:mm:ss,SSS</timestampPattern>
+        <maximumMessageSize>8192</maximumMessageSize>
+        <additionalFields>fieldName1=fieldValue1,fieldName2=fieldValue2</additionalFields>
+    </appender>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <root level="INFO">
+        <appender-ref ref="gelf" />
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>
