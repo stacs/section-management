@@ -80,10 +80,7 @@ public class CanvasApiTest {
             .addHeader("Content-Type", "application/json")
             .addHeader(Constants.CANVAS_LINK_HEADER, Link.of(linkUrl + "-1", "next").toString()));
     mockBackEnd.enqueue(
-        new MockResponse()
-            .setBody(json2)
-            .addHeader("Content-Type", "application/json")
-            .addHeader(Constants.CANVAS_LINK_HEADER, Link.of(linkUrl + "-2", "next").toString()));
+        new MockResponse().setBody(json2).addHeader("Content-Type", "application/json"));
     mockBackEnd.enqueue(
         new MockResponse().setBody(json3).addHeader("Content-Type", "application/json"));
     List<CanvasResponses.Course> userCourses = canvasApi.getUserCourses("test-user");
@@ -91,9 +88,15 @@ public class CanvasApiTest {
     CanvasResponses.Course course =
         userCourses.stream().filter(c -> "1".equals(c.id())).findFirst().orElse(null);
     assertNotNull(course);
-    RecordedRequest request1 = mockBackEnd.takeRequest();
+    RecordedRequest request = mockBackEnd.takeRequest();
     assertEquals(
         "/users/sis_user_id:test-user/courses?per_page=100&include%5B%5D=term&enrollment_type=Teacher",
-        request1.getPath());
+        request.getPath());
+    request = mockBackEnd.takeRequest();
+    assertEquals("/paging-1", request.getPath());
+    request = mockBackEnd.takeRequest();
+    assertEquals(
+        "/users/sis_user_id:test-user/courses?per_page=100&include%5B%5D=term&enrollment_type=TA",
+        request.getPath());
   }
 }

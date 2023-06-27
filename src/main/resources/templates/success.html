@@ -10,14 +10,22 @@
         <div th:replace="fragments/header :: header"></div>
         <p>The following changes were made to your course:</p>
         <ul>
-            <li th:each="section : ${sectionsToAdd}" th:text="${section.name} + ' (' + ${section.sisSectionId} + ') was added.'"></li>
-            <li th:each="section : ${sectionsToRemove}" th:text="${section.name} + ' (' + ${section.sisSectionId} + ') was removed.'"></li>
+            <li th:each="section : ${sectionsToAdd}" th:inline="text">
+                <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) was added.
+            </li>
+            <li th:each="section : ${sectionsToRemove}" th:inline="text">
+                <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) was removed.
+            </li>
         </ul>
         <div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors)}">
             <p>The following errors occurred:</p>
             <ul>
-                <li th:each="section : ${sectionsToAddErrors}" th:text="'Error adding ' + ${section.name} + ' (' + ${section.sisSectionId} + ') to the course.'"></li>
-                <li th:each="section : ${sectionsToRemoveErrors}" th:text="'Error removing ' + ${section.name} + ' (' + ${section.sisSectionId} + ') from the course.'"></li>
+                <li th:each="section : ${sectionsToAddErrors}" th:inline="text">
+                    Error adding <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) to the course.
+                </li>
+                <li th:each="section : ${sectionsToRemoveErrors}" th:inline="text">
+                    Error removing <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) from the course.
+                </li>
             </ul>
         </div>
         <button th:onclick="'window.location.href = \'' + @{/} + '\''" class="btn btn-primary">Reload Page</button>
