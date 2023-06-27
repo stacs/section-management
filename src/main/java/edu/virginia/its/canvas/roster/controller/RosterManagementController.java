@@ -41,9 +41,10 @@ public class RosterManagementController {
     List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
     Map<Term, List<Section>> sectionsMap = rosterManagementService.getAllUserSections(userCourses);
     // Remove any sections from the Map that are already in the course as sectionsMap is used to
-    // show options to the
-    // user on what sections they can add to their course.
+    // show options to the user on what sections they can add to their course.
+    // TODO: maybe move this logic into RosterManagementService?
     sectionsMap.values().forEach(sections -> sections.removeAll(currentCourseSections));
+    sectionsMap.values().removeIf(List::isEmpty);
     model.addAttribute("sectionsMap", sectionsMap);
 
     // We need to pre-populate the form with the sections already added so the checkboxes for those

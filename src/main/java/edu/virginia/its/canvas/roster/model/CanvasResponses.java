@@ -1,6 +1,7 @@
 package edu.virginia.its.canvas.roster.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.util.ObjectUtils;
 
 public final class CanvasResponses {
 
@@ -20,5 +21,13 @@ public final class CanvasResponses {
       @JsonProperty("sis_section_id") String sisSectionId,
       @JsonProperty("sis_course_id") String sisCourseId,
       @JsonProperty("nonxlist_course_id") String crosslistedCourseId,
-      @JsonProperty("total_students") int totalStudents) {}
+      @JsonProperty("total_students") int totalStudents) {
+    public boolean isWaitlist() {
+      return sisSectionId != null && sisSectionId.endsWith("_WL");
+    }
+
+    public boolean isCrosslisted() {
+      return !ObjectUtils.isEmpty(crosslistedCourseId);
+    }
+  }
 }

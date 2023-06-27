@@ -62,6 +62,16 @@ public class CanvasApi {
             .toString();
     List<Course> results = new ArrayList<>();
     getPagedResponses(uri, Course[].class, results);
+    uri =
+        UriComponentsBuilder.fromPath("/users/sis_user_id:{computingId}/courses")
+            .queryParam("per_page", "100")
+            .queryParam("include[]", "term")
+            .queryParam("enrollment_type", "TA")
+            // Using buildAndExpand() instead of just build() will stop 'include[]' from being
+            // double url encoded.
+            .buildAndExpand(computingId)
+            .toString();
+    getPagedResponses(uri, Course[].class, results);
     return results;
   }
 

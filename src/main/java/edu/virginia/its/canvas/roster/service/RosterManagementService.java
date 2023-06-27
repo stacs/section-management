@@ -5,9 +5,10 @@ import edu.virginia.its.canvas.roster.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Term;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -18,8 +19,16 @@ public class RosterManagementService {
 
   private final CanvasApi canvasApi;
 
+  private final Comparator<Section> alreadyAddedSectionsComparator;
+
+  private final Comparator<Section> sectionNameComparator;
+
   public RosterManagementService(CanvasApi canvasApi) {
     this.canvasApi = canvasApi;
+    this.alreadyAddedSectionsComparator =
+        Comparator.comparing(Section::isCrosslisted, Comparator.naturalOrder())
+            .thenComparing(Section::name, Comparator.naturalOrder());
+    this.sectionNameComparator = Comparator.comparing(Section::name);
   }
 
   public Course getCourse(String courseId) {
@@ -31,16 +40,14 @@ public class RosterManagementService {
   }
 
   public List<Section> getValidCourseSections(String courseId) {
-    return getValidSisSections(canvasApi.getCourseSections(courseId));
-  }
-
-  public Map<Term, List<Section>> getAllUserSections(String computingId) {
-    List<Course> userCourses = getUserCourses(computingId);
-    return getAllUserSections(userCourses);
+    List<Section> sections = getValidSisSections(canvasApi.getCourseSections(courseId));
+    return sections.stream().sorted(alreadyAddedSectionsComparator).toList();
   }
 
   public Map<Term, List<Section>> getAllUserSections(List<Course> userCourses) {
-    Map<Term, List<Section>> sectionsMap = new HashMap<>();
+    // Sort terms by most recent
+    Map<Term, List<Section>> sectionsMap =
+        new TreeMap<>(Comparator.comparing(Term::sisTermId, Comparator.reverseOrder()));
     // TODO: try to use spring reactive to make these calls simultaneously
     for (Course course : userCourses) {
       if (!isValidTerm(course.term())) {
@@ -52,6 +59,8 @@ public class RosterManagementService {
       sectionsMap.get(course.term()).addAll(validSections);
     }
     sectionsMap.values().removeIf(List::isEmpty);
+    // Sort sections within a term by name
+    sectionsMap.values().forEach(sections -> sections.sort(sectionNameComparator));
     return sectionsMap;
   }
 

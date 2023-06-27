@@ -25,12 +25,13 @@
             <div>
                 <p th:if="${#lists.isEmpty(currentCourseSections)}">No additional SIS sections were previously added to the course</p>
                 <ul th:else>
-                    <li class="form-check form-switch" th:each="section, sectionStat : ${currentCourseSections}">
+                    <li class="form-check" th:each="section, sectionStat : ${currentCourseSections}">
                         <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
                                th:field="*{sectionsToKeep}" th:value="${section.id}"
                                th:disabled="${section.crosslistedCourseId == null}" class="form-check-input"/>
-                        <label th:for="'section-input-' + ${section.id}" class="form-check-label"
-                               th:text="${section.name} + ' (' + ${section.sisSectionId} + ') - ' + ${section.totalStudents} + ' students'">Already added section</label>
+                        <label th:for="'section-input-' + ${section.id}" class="form-check-label" th:inline="text">
+                            <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) - [[${section.totalStudents}]] students
+                        </label>
                     </li>
                 </ul>
             </div>
@@ -45,11 +46,12 @@
             </div>
             <div th:id="'term-div-' + ${sectionMap.key.sisTermId}" th:each="sectionMap : ${sectionsMap}" style="display: none;">
                 <ul>
-                    <li class="form-check form-switch" th:each="section, sectionStat : ${sectionMap.value}">
+                    <li class="form-check" th:each="section, sectionStat : ${sectionMap.value}">
                         <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
                                th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"/>
-                        <label th:for="'section-input-' + ${section.id}" class="form-check-label"
-                               th:text="${section.name} + ' (' + ${section.sisSectionId} + ') - ' + ${section.totalStudents} + ' students'">Section to add</label>
+                        <label th:for="'section-input-' + ${section.id}" class="form-check-label" th:inline="text">
+                            <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) - [[${section.totalStudents}]] students
+                        </label>
                     </li>
                 </ul>
             </div>

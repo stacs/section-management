@@ -32,7 +32,7 @@ public class CanvasJsonConfig {
             .messageType(Placement.LTI_RESOURCE_LINK_REQUEST)
             .customField(Constants.USERNAME_CUSTOM_KEY, "$Canvas.user.sisSourceId")
             .customField(Constants.COURSE_ID_CUSTOM_KEY, "$Canvas.course.id")
-            .text("Edit Class Roster(s)")
+            .text("Manage SIS Sections")
             .build();
     Settings settings = Settings.builder().placement(courseSettingsSubNavigation).build();
     Extension extension =
