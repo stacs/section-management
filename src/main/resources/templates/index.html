@@ -37,6 +37,8 @@
             </div>
 
             <h4>Add Additional SIS Sections</h4>
+            <input id="show-waitlists" type="checkbox" onchange="showWaitlists(this)"/>
+            <label for="show-waitlists">Show Waitlist Sections</label>
             <div>
                 <label for="term-select">Select a term from the menu to view and select additional SIS sections to add to the course.  You can only add sections from a single term at a time.</label>
                 <select id="term-select" th:field="*{selectedTerm}" onchange="selectTerm()" class="form-select mt-3">
@@ -46,7 +48,8 @@
             </div>
             <div th:id="'term-div-' + ${sectionMap.key.sisTermId}" th:each="sectionMap : ${sectionsMap}" style="display: none;">
                 <ul>
-                    <li class="form-check" th:each="section, sectionStat : ${sectionMap.value}">
+                    <li class="form-check" th:each="section, sectionStat : ${sectionMap.value}" th:data-waitlist="${section.isWaitlist}"
+                        th:style="${section.isWaitlist ? 'display:none' : 'display:block'}">
                         <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
                                th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"/>
                         <label th:for="'section-input-' + ${section.id}" class="form-check-label" th:inline="text">
