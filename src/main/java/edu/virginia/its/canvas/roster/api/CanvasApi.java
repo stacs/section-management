@@ -1,6 +1,7 @@
 package edu.virginia.its.canvas.roster.api;
 
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Course;
+import edu.virginia.its.canvas.roster.model.CanvasResponses.Enrollment;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.roster.utils.Constants;
 import java.time.Duration;
@@ -127,6 +128,42 @@ public class CanvasApi {
               return Mono.error(new Exception("Could not de-crosslist section"));
             })
         .bodyToMono(Section.class)
+        .block(requestTimeout);
+  }
+
+  public List<Enrollment> getCourseEnrollments(String courseId) {
+    String uri =
+        UriComponentsBuilder.fromPath("/courses/{id}/enrollments")
+            .queryParam("per_page", "100")
+            .build(courseId)
+            .toString();
+    List<Enrollment> results = new ArrayList<>();
+    getPagedResponses(uri, Enrollment[].class, results);
+    return results;
+  }
+
+  public Enrollment deleteUserEnrollment(String courseId, String enrollmentId) {
+    return canvasApi
+        .delete()
+        .uri(
+            uriBuilder ->
+                uriBuilder
+                    .path("/courses/{courseId}/enrollments/{enrollmentId}")
+                    .queryParam("task", "delete")
+                    .build(courseId, enrollmentId))
+        .header("Authorization", canvasAuthorization)
+        .retrieve()
+        .onStatus(
+            HttpStatus::isError,
+            response -> {
+              log.warn(
+                  "Error removing enrollment '{}' from course '{}', status code given was '{}'",
+                  enrollmentId,
+                  courseId,
+                  response.statusCode());
+              return Mono.error(new Exception("Could not remove enrollment from course"));
+            })
+        .bodyToMono(Enrollment.class)
         .block(requestTimeout);
   }
 

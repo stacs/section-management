@@ -12,4 +12,5 @@ public final class RosterManagementForm {
   private String selectedTerm;
   private List<String> sectionsToKeep = new ArrayList<>();
   private List<String> sectionsToAdd = new ArrayList<>();
+  private boolean removeFromCourse;
 }

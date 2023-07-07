@@ -8,11 +8,38 @@
 
 <body>
   <div th:replace="fragments/header :: header"></div>
-  <h4>Please confirm the following changes to your course site:</h4>
-  <h6>Sections being added:</h6>
-
-  <h6>Sections being removed:</h6>
-
-  <h6>Since you clicked the remove checkbox, you will be removed from the following course sites as a Teacher due to them having no more SIS Rosters:</h6>
+  <form action="#" th:action="@{/apply-changes}" th:object="${rosterManagementForm}" method="post">
+    <h4>Please confirm the following changes to your course site:</h4>
+    <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
+      <h6>Sections being added:</h6>
+      <input type="hidden" th:field="*{sectionsToAdd}"/>
+      <ul>
+        <li th:each="section : ${sectionsToAdd}" th:inline="text">
+          <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]])
+        </li>
+      </ul>
+    </div>
+    <div th:unless="${#lists.isEmpty(sectionsToRemove)}">
+      <h6>Sections being removed:</h6>
+      <input type="hidden" th:field="*{sectionsToKeep}"/>
+      <ul>
+        <li th:each="section : ${sectionsToRemove}" th:inline="text">
+          <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]])
+        </li>
+      </ul>
+    </div>
+    <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
+      <input id="remove-from-course" type="checkbox" th:field="*{removeFromCourse}"/>
+      <label for="remove-from-course">Remove me from previous courses for added SIS sections</label>
+      <p>Selecting this option will remove you from the following courses:</p>
+      <ul>
+        <li th:each="course : ${coursesToRemoveUserFrom}" th:inline="text">
+          <strong>[[${course.name}]]</strong> ([[${course.courseCode}]])
+        </li>
+      </ul>
+    </div>
+    <a id="backButton" th:href="@{/}" class="btn btn-primary">Back</a>
+    <button id="formSubmitButton" type="submit" class="btn btn-primary">Save</button>
+  </form>
 </body>
 </html>
