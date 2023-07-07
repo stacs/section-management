@@ -2,6 +2,7 @@ package edu.virginia.its.canvas.roster.service;
 
 import edu.virginia.its.canvas.roster.api.CanvasApi;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Course;
+import edu.virginia.its.canvas.roster.model.CanvasResponses.Enrollment;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Term;
 import java.util.ArrayList;
@@ -93,6 +94,21 @@ public class RosterManagementService {
                 (courseId.equals(section.courseId()) && section.crosslistedCourseId() == null)
                     || courseId.equals(section.crosslistedCourseId()))
         .toList();
+  }
+
+  public boolean removeUserFromCourse(String computingId, String courseId) {
+    List<Enrollment> enrollments = canvasApi.getCourseEnrollments(courseId);
+    for (Enrollment enrollment : enrollments) {
+      if ("TeacherEnrollment".equals(enrollment.role())
+          && computingId.equals(enrollment.sisUserId())) {
+        try {
+          canvasApi.deleteUserEnrollment(courseId, enrollment.id());
+        } catch (Exception ex) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   private boolean isValidTerm(Term term) {

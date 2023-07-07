@@ -30,4 +30,15 @@ public final class CanvasResponses {
       return !ObjectUtils.isEmpty(crosslistedCourseId);
     }
   }
+
+  public record Enrollment(
+      String id,
+      @JsonProperty("user_id") String userId,
+      @JsonProperty("course_id") String courseId,
+      String type,
+      String role,
+      @JsonProperty("enrollment_state") String enrollmentState,
+      @JsonProperty("sis_course_id") String sisCourseId,
+      @JsonProperty("sis_section_id") String sisSectionId,
+      @JsonProperty("sis_user_id") String sisUserId) {}
 }

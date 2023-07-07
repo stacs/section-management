@@ -10,7 +10,7 @@
         <div th:replace="fragments/header :: header"></div>
         <p>By default, courses are created in UVACanvas for each course roster or section listed in the Student Information System (SIS).
             The SIS Section Management tool allows instructors to add or remove additional course rosters or sections in a single course in UVACanvas.</p>
-        <form id="rosterManagementForm" action="#" th:action="@{/apply-changes}" th:object="${rosterManagementForm}" method="post">
+        <form id="rosterManagementForm" action="#" th:action="@{/validate}" th:object="${rosterManagementForm}" method="post">
             <h4>Course Information</h4>
             <p>You are managing SIS sections for the following course:</p>
             <strong>UVACanvas Course Name:</strong><div th:text="${courseName}">My Course Name</div>
@@ -25,7 +25,7 @@
             <div>
                 <p th:if="${#lists.isEmpty(currentCourseSections)}">No additional SIS sections were previously added to the course</p>
                 <ul th:else>
-                    <li class="form-check" th:each="section, sectionStat : ${currentCourseSections}">
+                    <li class="form-check" th:each="section : ${currentCourseSections}">
                         <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
                                th:field="*{sectionsToKeep}" th:value="${section.id}"
                                th:disabled="${section.crosslistedCourseId == null}" class="form-check-input"/>
@@ -48,7 +48,7 @@
             </div>
             <div th:id="'term-div-' + ${sectionMap.key.sisTermId}" th:each="sectionMap : ${sectionsMap}" style="display: none;">
                 <ul>
-                    <li class="form-check" th:each="section, sectionStat : ${sectionMap.value}" th:data-waitlist="${section.isWaitlist}"
+                    <li class="form-check" th:each="section : ${sectionMap.value}" th:data-waitlist="${section.isWaitlist}"
                         th:style="${section.isWaitlist ? 'display:none' : 'display:block'}">
                         <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
                                th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"/>

@@ -8,8 +8,10 @@ import edu.virginia.its.canvas.roster.model.RosterManagementForm;
 import edu.virginia.its.canvas.roster.service.RosterManagementService;
 import edu.virginia.its.canvas.roster.utils.Constants;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +60,44 @@ public class RosterManagementController {
     return "index";
   }
 
+  @PostMapping("/validate")
+  public String validate(Model model, @ModelAttribute RosterManagementForm rosterManagementForm) {
+    CanvasAuthenticationToken token = CanvasAuthenticationToken.getToken();
+    String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
+    String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
+    List<Section> currentCourseSections = rosterManagementService.getValidCourseSections(courseId);
+    // Don't try to remove sections that have a null crosslisted course id (meaning that they were
+    // originally created in the current course).
+    List<Section> sectionsToRemove =
+        currentCourseSections.stream()
+            .filter(
+                section ->
+                    section.crosslistedCourseId() != null
+                        && !rosterManagementForm.getSectionsToKeep().contains(section.id()))
+            .toList();
+    model.addAttribute("sectionsToRemove", sectionsToRemove);
+
+    List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
+    Map<Term, List<Section>> sectionsMap = rosterManagementService.getAllUserSections(userCourses);
+    List<Section> allSections = sectionsMap.values().stream().flatMap(List::stream).toList();
+    List<Section> sectionsToAdd =
+        allSections.stream()
+            .filter(section -> rosterManagementForm.getSectionsToAdd().contains(section.id()))
+            .toList();
+    model.addAttribute("sectionsToAdd", sectionsToAdd);
+    model.addAttribute("rosterManagementForm", rosterManagementForm);
+
+    List<Course> coursesToRemoveUserFrom =
+        userCourses.stream()
+            .filter(
+                course ->
+                    sectionsToAdd.stream()
+                        .anyMatch(section -> section.courseId().equals(course.id())))
+            .toList();
+    model.addAttribute("coursesToRemoveUserFrom", coursesToRemoveUserFrom);
+    return "validate";
+  }
+
   @PostMapping("/apply-changes")
   public String applyChanges(
       Model model, @ModelAttribute RosterManagementForm rosterManagementForm) {
@@ -96,12 +136,21 @@ public class RosterManagementController {
             .filter(section -> rosterManagementForm.getSectionsToAdd().contains(section.id()))
             .toList();
     List<Section> sectionsToAddErrors = new ArrayList<>();
+    Set<String> coursesToRemoveUserFrom = new HashSet<>();
     for (Section sectionToAdd : sectionsToAdd) {
       log.info("Crosslisting section '{}' to course '{}'", sectionToAdd, courseId);
       boolean success = rosterManagementService.crosslistSection(sectionToAdd, courseId);
       if (!success) {
         sectionsToAddErrors.add(sectionToAdd);
+        continue;
       }
+      if (rosterManagementForm.isRemoveFromCourse()) {
+        coursesToRemoveUserFrom.add(sectionToAdd.courseId());
+      }
+    }
+    for (String courseToRemoveUserFromId : coursesToRemoveUserFrom) {
+      log.info("Removing user '{}' from course '{}'", computingId, courseToRemoveUserFromId);
+      rosterManagementService.removeUserFromCourse(computingId, courseToRemoveUserFromId);
     }
     model.addAttribute("sectionsToAdd", sectionsToAdd);
     model.addAttribute("sectionsToAddErrors", sectionsToAddErrors);
