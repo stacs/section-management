@@ -15,10 +15,8 @@
             <p>You are managing SIS sections for the following course:</p>
             <strong>UVACanvas Course Name:</strong><div th:text="${courseName}">My Course Name</div>
             <strong>UVACanvas Course Code:</strong><div th:text="${courseCode}">My Course Code</div>
-            <strong>UVACanvas Course SIS ID:</strong><div th:text="${courseSisId}">My Course SIS ID</div>
 
-            <h4>Currently added SIS sections</h4>
-
+            <h4 class="mt-3">Currently added SIS sections</h4>
             <p>Any additional SIS sections previously added to the course are listed below.
                 Deselect previously added sections to remove them from the course (The original SIS sections in the course cannot be removed).
             </p>
@@ -30,15 +28,13 @@
                                th:field="*{sectionsToKeep}" th:value="${section.id}"
                                th:disabled="${section.crosslistedCourseId == null}" class="form-check-input"/>
                         <label th:for="'section-input-' + ${section.id}" class="form-check-label" th:inline="text">
-                            <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) - [[${section.totalStudents}]] students
+                            [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
                         </label>
                     </li>
                 </ul>
             </div>
 
-            <h4>Add Additional SIS Sections</h4>
-            <input id="show-waitlists" type="checkbox" onchange="showWaitlists(this)"/>
-            <label for="show-waitlists">Show Waitlist Sections</label>
+            <h4 class="mt-3">Add Additional SIS Sections</h4>
             <div>
                 <label for="term-select">Select a term from the menu to view and select additional SIS sections to add to the course.  You can only add sections from a single term at a time.</label>
                 <select id="term-select" th:field="*{selectedTerm}" onchange="selectTerm()" class="form-select mt-3">
@@ -53,12 +49,12 @@
                         <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
                                th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"/>
                         <label th:for="'section-input-' + ${section.id}" class="form-check-label" th:inline="text">
-                            <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) - [[${section.totalStudents}]] students
+                            [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
                         </label>
                     </li>
                 </ul>
             </div>
-            <div id="submitDiv">
+            <div id="submitDiv" class="mt-3">
                 <button id="formSubmitButton" type="submit" class="btn btn-primary" disabled>Continue</button>
             </div>
         </form>
