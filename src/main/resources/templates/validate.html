@@ -15,7 +15,7 @@
       <input type="hidden" th:field="*{sectionsToAdd}"/>
       <ul>
         <li th:each="section : ${sectionsToAdd}" th:inline="text">
-          <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]])
+          [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
         </li>
       </ul>
     </div>
@@ -24,7 +24,7 @@
       <input type="hidden" th:field="*{sectionsToKeep}"/>
       <ul>
         <li th:each="section : ${sectionsToRemove}" th:inline="text">
-          <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]])
+          [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
         </li>
       </ul>
     </div>

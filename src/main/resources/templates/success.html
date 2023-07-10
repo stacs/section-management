@@ -11,20 +11,20 @@
         <p>The following changes were made to your course:</p>
         <ul>
             <li th:each="section : ${sectionsToAdd}" th:inline="text">
-                <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) was added.
+                [[${section.sisSectionId}]] was added.
             </li>
             <li th:each="section : ${sectionsToRemove}" th:inline="text">
-                <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) was removed.
+                [[${section.sisSectionId}]] was removed.
             </li>
         </ul>
         <div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors)}">
             <p>The following errors occurred:</p>
             <ul>
                 <li th:each="section : ${sectionsToAddErrors}" th:inline="text">
-                    Error adding <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) to the course.
+                    Error adding [[${section.sisSectionId}]] to the course.
                 </li>
                 <li th:each="section : ${sectionsToRemoveErrors}" th:inline="text">
-                    Error removing <strong>[[${section.name}]]</strong> ([[${section.sisSectionId}]]) from the course.
+                    Error removing  ([[${section.sisSectionId}]]) from the course.
                 </li>
             </ul>
         </div>

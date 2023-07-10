@@ -19,19 +19,3 @@ function selectTerm() {
   selectedTermDiv.style.display = '';
   selectedTermDiv.style.visibility = 'visible';
 }
-
-function showWaitlists(source) {
-  var waitlists = document.querySelectorAll("li[data-waitlist='true']");
-  var showWaitlists = source.checked;
-  if(showWaitlists) {
-    waitlists.forEach(waitlist => {
-      waitlist.style.display = 'block';
-      waitlist.style.visibility = 'visible';
-    });
-  } else {
-    waitlists.forEach(waitlist => {
-      waitlist.style.display = 'none';
-      waitlist.style.visibility = 'hidden';
-    });
-  }
-}

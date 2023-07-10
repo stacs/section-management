@@ -36,7 +36,6 @@ public class RosterManagementController {
     Course currentCourse = rosterManagementService.getCourse(courseId);
     model.addAttribute("courseName", currentCourse.name());
     model.addAttribute("courseCode", currentCourse.courseCode());
-    model.addAttribute("courseSisId", currentCourse.sisCourseId());
     List<Section> currentCourseSections = rosterManagementService.getValidCourseSections(courseId);
     model.addAttribute("currentCourseSections", currentCourseSections);
 
