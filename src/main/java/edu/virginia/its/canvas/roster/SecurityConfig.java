@@ -19,7 +19,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.authorizeRequests()
         .antMatchers(
-            "/resources/**", "/favicon.ico", "/config.json", "/.well-known/jwks.json", "/lti/login")
+            "/resources/**",
+            "/favicon.ico",
+            "/config.json",
+            "/.well-known/jwks.json",
+            "/lti/login",
+            "/icons/**")
         .permitAll()
         .antMatchers("/**")
         .hasRole("INSTRUCTOR");
