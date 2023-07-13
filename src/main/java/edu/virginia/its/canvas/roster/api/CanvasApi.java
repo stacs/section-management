@@ -4,6 +4,8 @@ import edu.virginia.its.canvas.roster.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Enrollment;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.roster.utils.Constants;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -192,7 +194,9 @@ public class CanvasApi {
       for (String link : links) {
         Link linkObject = Link.valueOf(link);
         if (linkObject.hasRel("next")) {
-          return linkObject.getHref();
+          String href = linkObject.getHref();
+          // We need to decode the href, otherwise query params such as 'include[]' won't work
+          return URLDecoder.decode(href, StandardCharsets.UTF_8);
         }
       }
     }
