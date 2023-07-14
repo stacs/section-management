@@ -46,10 +46,10 @@ public class CanvasJsonConfig {
             .settings(settings)
             .build();
     return Config.builder()
-        .title("Roster Management")
-        .description("Roster Management")
+        .title("Section Management")
+        .description("Manage SIS Sections")
         .oidcInitiationUrl(appUrl + "/lti/login_initiation/" + toolName)
-        .targetLinkUri(appUrl + "/")
+        .targetLinkUri(appUrl + "/launch")
         .scope(Config.LINEITEM)
         .scope(Config.RESULT_READONLY)
         .extension(extension)
