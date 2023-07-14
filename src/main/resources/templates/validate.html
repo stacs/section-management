@@ -9,10 +9,11 @@
 <body>
   <div th:replace="fragments/header :: header"></div>
   <form action="#" th:action="@{/apply-changes}" th:object="${rosterManagementForm}" method="post">
+    <input type="hidden" th:field="*{sectionsToAdd}"/>
+    <input type="hidden" th:field="*{sectionsToKeep}"/>
     <h4>Please confirm the following changes to your course site:</h4>
     <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
       <h6>Sections being added:</h6>
-      <input type="hidden" th:field="*{sectionsToAdd}"/>
       <ul>
         <li th:each="section : ${sectionsToAdd}" th:inline="text">
           [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
@@ -21,7 +22,6 @@
     </div>
     <div th:unless="${#lists.isEmpty(sectionsToRemove)}">
       <h6>Sections being removed:</h6>
-      <input type="hidden" th:field="*{sectionsToKeep}"/>
       <ul>
         <li th:each="section : ${sectionsToRemove}" th:inline="text">
           [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
