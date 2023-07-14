@@ -27,7 +27,15 @@ public class RosterManagementController {
 
   @Autowired private RosterManagementService rosterManagementService;
 
-  @GetMapping("/")
+  @GetMapping("/launch")
+  public String launch() {
+    // We don't need the token here, but we still call getToken() to ensure the LTI handshake was
+    // successful.
+    CanvasAuthenticationToken.getToken();
+    return "loading";
+  }
+
+  @GetMapping("/index")
   public String index(Model model) {
     CanvasAuthenticationToken token = CanvasAuthenticationToken.getToken();
     String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
