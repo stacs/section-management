@@ -5,6 +5,7 @@ import edu.virginia.its.canvas.roster.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Enrollment;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Term;
+import edu.virginia.its.canvas.roster.utils.SectionUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -20,16 +21,8 @@ public class RosterManagementService {
 
   private final CanvasApi canvasApi;
 
-  private final Comparator<Section> alreadyAddedSectionsComparator;
-
-  private final Comparator<Section> sectionNameComparator;
-
   public RosterManagementService(CanvasApi canvasApi) {
     this.canvasApi = canvasApi;
-    this.alreadyAddedSectionsComparator =
-        Comparator.comparing(Section::isCrosslisted, Comparator.naturalOrder())
-            .thenComparing(Section::name, Comparator.naturalOrder());
-    this.sectionNameComparator = Comparator.comparing(Section::name);
   }
 
   public Course getCourse(String courseId) {
@@ -41,8 +34,10 @@ public class RosterManagementService {
   }
 
   public List<Section> getValidCourseSections(String courseId) {
-    List<Section> sections = getValidSisSections(canvasApi.getCourseSections(courseId));
-    return sections.stream().sorted(alreadyAddedSectionsComparator).toList();
+    List<Section> sections =
+        SectionUtils.getValidSisSections(canvasApi.getCourseSections(courseId));
+    SectionUtils.sortSectionsByCrosslistingThenName(sections);
+    return sections;
   }
 
   public Map<Term, List<Section>> getAllUserSections(List<Course> userCourses) {
@@ -56,12 +51,12 @@ public class RosterManagementService {
       }
       sectionsMap.computeIfAbsent(course.term(), k -> new ArrayList<>());
       List<Section> sections = canvasApi.getCourseSections(course.id());
-      List<Section> validSections = getValidSisSections(sections);
+      List<Section> validSections = SectionUtils.getValidSisSections(sections);
       sectionsMap.get(course.term()).addAll(validSections);
     }
     sectionsMap.values().removeIf(List::isEmpty);
     // Sort sections within a term by name
-    sectionsMap.values().forEach(this::sortSectionsByName);
+    sectionsMap.values().forEach(SectionUtils::sortSectionsByName);
     return sectionsMap;
   }
 
@@ -83,19 +78,6 @@ public class RosterManagementService {
     return true;
   }
 
-  public List<Section> getValidSisSections(List<Section> sections) {
-    return sections.stream().filter(s -> !ObjectUtils.isEmpty(s.sisSectionId())).toList();
-  }
-
-  public List<Section> getSectionsCreatedInCourse(String courseId, List<Section> sections) {
-    return sections.stream()
-        .filter(
-            section ->
-                (courseId.equals(section.courseId()) && section.crosslistedCourseId() == null)
-                    || courseId.equals(section.crosslistedCourseId()))
-        .toList();
-  }
-
   public boolean removeUserFromCourse(String computingId, String courseId) {
     List<Enrollment> enrollments = canvasApi.getCourseEnrollments(courseId);
     for (Enrollment enrollment : enrollments) {
@@ -109,10 +91,6 @@ public class RosterManagementService {
       }
     }
     return true;
-  }
-
-  public void sortSectionsByName(List<Section> sections) {
-    sections.sort(sectionNameComparator);
   }
 
   private boolean isValidTerm(Term term) {
