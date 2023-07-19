@@ -67,6 +67,52 @@ public class RosterManagementController {
     return "index";
   }
 
+  @PostMapping("/waitlists")
+  public String waitlists(Model model, @ModelAttribute RosterManagementForm rosterManagementForm) {
+    CanvasAuthenticationToken token = CanvasAuthenticationToken.getToken();
+    String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
+    String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
+    List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
+    Map<Term, List<Section>> sectionsMap = rosterManagementService.getAllUserSections(userCourses);
+    List<Section> allSections = sectionsMap.values().stream().flatMap(List::stream).toList();
+    Set<Section> sectionsToCheckSet =
+        new HashSet<>(
+            allSections.stream()
+                .filter(
+                    section ->
+                        rosterManagementForm.getSectionsToAdd().contains(section.id())
+                            || rosterManagementForm.getSectionsToKeep().contains(section.id()))
+                .toList());
+
+    // Have to manually add the current course sections as we don't pass that in the
+    // SectionsToKeep object as we don't let the user remove the original SIS sections from a
+    // course.
+    // The reason SectionsToCheck starts as a Set is so we don't double show Sections between
+    // CurrentCourseSections and SectionsToKeep.
+    List<Section> currentCourseSections = rosterManagementService.getValidCourseSections(courseId);
+    sectionsToCheckSet.addAll(currentCourseSections);
+
+    // Don't show sections that we are in the process of removing
+    // TODO: is there a better way to figure out what sections to show for waitlist purposes vs all
+    // the service and stream calls?
+    List<Section> sectionsToRemove =
+        currentCourseSections.stream()
+            .filter(
+                section ->
+                    section.crosslistedCourseId() != null
+                        && !rosterManagementForm.getSectionsToKeep().contains(section.id()))
+            .toList();
+    sectionsToRemove.forEach(sectionsToCheckSet::remove);
+
+    List<Section> sectionsToCheck = new ArrayList<>(sectionsToCheckSet);
+    rosterManagementService.sortSectionsByName(sectionsToCheck);
+    if (sectionsToCheck.isEmpty()) {
+      return validate(model, rosterManagementForm);
+    }
+    model.addAttribute("sectionsToCheck", sectionsToCheck);
+    return "waitlists";
+  }
+
   @PostMapping("/validate")
   public String validate(Model model, @ModelAttribute RosterManagementForm rosterManagementForm) {
     CanvasAuthenticationToken token = CanvasAuthenticationToken.getToken();
@@ -92,7 +138,6 @@ public class RosterManagementController {
             .filter(section -> rosterManagementForm.getSectionsToAdd().contains(section.id()))
             .toList();
     model.addAttribute("sectionsToAdd", sectionsToAdd);
-    model.addAttribute("rosterManagementForm", rosterManagementForm);
 
     List<Course> coursesToRemoveUserFrom =
         userCourses.stream()
@@ -102,6 +147,12 @@ public class RosterManagementController {
                         .anyMatch(section -> section.courseId().equals(course.id())))
             .toList();
     model.addAttribute("coursesToRemoveUserFrom", coursesToRemoveUserFrom);
+
+    List<Section> waitlistedSections =
+        allSections.stream()
+            .filter(section -> rosterManagementForm.getWaitlistsToAdd().contains(section.id()))
+            .toList();
+    model.addAttribute("waitlistedSections", waitlistedSections);
     return "validate";
   }
 

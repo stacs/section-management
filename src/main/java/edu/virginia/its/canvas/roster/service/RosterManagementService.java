@@ -61,7 +61,7 @@ public class RosterManagementService {
     }
     sectionsMap.values().removeIf(List::isEmpty);
     // Sort sections within a term by name
-    sectionsMap.values().forEach(sections -> sections.sort(sectionNameComparator));
+    sectionsMap.values().forEach(this::sortSectionsByName);
     return sectionsMap;
   }
 
@@ -109,6 +109,10 @@ public class RosterManagementService {
       }
     }
     return true;
+  }
+
+  public void sortSectionsByName(List<Section> sections) {
+    sections.sort(sectionNameComparator);
   }
 
   private boolean isValidTerm(Term term) {

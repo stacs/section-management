@@ -1,15 +1,5 @@
 var originalFormData;
 
-function selectRoster() {
-  var submitButton = document.getElementById("formSubmitButton");
-  var newFormData = getFormData();
-  if(JSON.stringify(originalFormData) == JSON.stringify(newFormData)) {
-    submitButton.disabled = true;
-  } else {
-    submitButton.disabled = false;
-  }
-}
-
 function selectTerm() {
   var divList = document.querySelectorAll('[id^="term-div-"]');
   divList.forEach(div => {
@@ -27,13 +17,10 @@ function selectTerm() {
   selectedTermDiv.style.visibility = 'visible';
 }
 
-// Used to determine when the Continue button for the initial form should be enabled/disabled.
-function getFormData() {
-  return $('input:checked').map(function() {
-    return this.id;
-  }).get();
+function selectAllSectionsForWaitlists() {
+  var checkAll = document.getElementById("selectAllSectionsForWaitlistsButton").checked;
+  var inputList = document.querySelectorAll('[id^="waitlist-section-"]');
+  inputList.forEach(input => {
+    input.checked = checkAll;
+  });
 }
-
-$(document).ready(function() {
-  originalFormData = getFormData();
-});
