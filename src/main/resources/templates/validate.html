@@ -11,6 +11,7 @@
   <form action="#" th:action="@{/apply-changes}" th:object="${rosterManagementForm}" method="post">
     <input type="hidden" th:field="*{sectionsToAdd}"/>
     <input type="hidden" th:field="*{sectionsToKeep}"/>
+    <input type="hidden" th:field="*{waitlistsToAdd}"/>
     <h4>Please confirm the following changes to your course site:</h4>
     <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
       <h6>Sections being added:</h6>
@@ -28,9 +29,17 @@
         </li>
       </ul>
     </div>
+    <div th:unless="${#lists.isEmpty(waitlistedSections)}">
+      <h6>Waitlists will be enabled for the following sections:</h6>
+      <ul>
+        <li th:each="section : ${waitlistedSections}" th:inline="text">
+          [[${section.sisSectionId}]]
+        </li>
+      </ul>
+    </div>
     <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
-      <input id="remove-from-course" type="checkbox" th:field="*{removeFromCourse}"/>
-      <label for="remove-from-course">Remove me from previous courses for added SIS sections</label>
+      <input id="remove-from-course" type="checkbox" th:field="*{removeFromCourse}" class="form-check-input"/>
+      <label for="remove-from-course" class="form-check-label">Remove me from previous courses for added SIS sections</label>
       <p>Selecting this option will remove you from the following courses:</p>
       <ul>
         <li th:each="course : ${coursesToRemoveUserFrom}" th:inline="text">
@@ -38,8 +47,12 @@
         </li>
       </ul>
     </div>
+    <div th:if="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSections)}">
+      <p>No changes to your course site were detected.</p>
+    </div>
     <a id="backButton" th:href="@{/launch}" class="btn btn-primary">Back</a>
-    <button id="formSubmitButton" type="submit" class="btn btn-primary">Save</button>
+    <button th:unless="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSections)}"
+            id="formSubmitButton" type="submit" class="btn btn-primary ml-2">Save</button>
   </form>
 </body>
 </html>

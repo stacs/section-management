@@ -3,9 +3,13 @@ body {
 }
 
 .btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
-  background-color: #0645AD !important;
+  background-color: #232D4B !important;
 }
 
 .form-check-input {
-  accent-color: #0645AD
+  border-color: #232D4B !important;
+}
+
+.form-check-input:checked {
+  background-color: #232D4B !important;
 }

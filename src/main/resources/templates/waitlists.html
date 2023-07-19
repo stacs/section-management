@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+  <div th:replace="fragments/head :: head"></div>
+</head>
+
+<body>
+<div th:replace="fragments/header :: header"></div>
+<form action="#" th:action="@{/validate}" th:object="${rosterManagementForm}" method="post">
+  <input type="hidden" th:field="*{sectionsToAdd}"/>
+  <input type="hidden" th:field="*{sectionsToKeep}"/>
+  <h4>Manage Waitlisted Students</h4>
+  <p>Select sections to add any waitlisted students in those sections to the course site.
+  Deselect sections to remove any waitlisted students in those sections from the course site.</p>
+  <p>Changes to add or remove waitlisted students will be reflected in the course site within two hours.</p>
+  <input id="selectAllSectionsForWaitlistsButton" type="checkbox" onclick="selectAllSectionsForWaitlists()" class="form-check-input"/>
+  <label for="selectAllSectionsForWaitlistsButton" class="form-check-label">Add waitlisted students for all sections</label>
+  <ul>
+    <li class="form-check" th:each="section : ${sectionsToCheck}">
+      <input th:id="'waitlist-section-input-' + ${section.id}" type="checkbox"
+             th:field="*{waitlistsToAdd}" th:value="${section.id}" class="form-check-input"/>
+      <label th:for="'waitlist-section-input-' + ${section.id}" class="form-check-label" th:inline="text">
+        [[${section.sisSectionId}]]
+      </label>
+    </li>
+  </ul>
+  <a id="backButton" th:href="@{/launch}" class="btn btn-primary">Back</a>
+  <button id="formSubmitButton" type="submit" class="btn btn-primary ml-2">Continue</button>
+</form>
+</body>
+</html>

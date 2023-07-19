@@ -10,7 +10,7 @@
         <div th:replace="fragments/header :: header"></div>
         <p>By default, courses are created in UVACanvas for each course roster or section listed in the Student Information System (SIS).
             The SIS Section Management tool allows instructors to add or remove additional course rosters or sections in a single course in UVACanvas.</p>
-        <form id="rosterManagementForm" action="#" th:action="@{/validate}" th:object="${rosterManagementForm}" method="post">
+        <form id="rosterManagementForm" action="#" th:action="@{/waitlists}" th:object="${rosterManagementForm}" method="post">
             <h4 class="mt-4">Course Information</h4>
             <p>You are managing SIS sections for the following course:</p>
             <strong>UVACanvas Course Name:</strong><div th:text="${courseName}">My Course Name</div>
@@ -24,7 +24,7 @@
                 <p th:if="${#lists.isEmpty(currentCourseSections)}">No additional SIS sections were previously added to the course</p>
                 <ul th:else>
                     <li class="form-check" th:each="section : ${currentCourseSections}">
-                        <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
+                        <input th:id="'section-input-' + ${section.id}" type="checkbox"
                                th:field="*{sectionsToKeep}" th:value="${section.id}"
                                th:disabled="${section.crosslistedCourseId == null}" class="form-check-input"/>
                         <label th:for="'section-input-' + ${section.id}" class="form-check-label" th:inline="text">
@@ -46,7 +46,7 @@
                 <ul>
                     <li class="form-check" th:each="section : ${sectionMap.value}" th:data-waitlist="${section.isWaitlist}"
                         th:style="${section.isWaitlist ? 'display:none' : 'display:block'}">
-                        <input th:id="'section-input-' + ${section.id}" type="checkbox" onclick="selectRoster()"
+                        <input th:id="'section-input-' + ${section.id}" type="checkbox"
                                th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"/>
                         <label th:for="'section-input-' + ${section.id}" class="form-check-label" th:inline="text">
                             [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
@@ -55,7 +55,7 @@
                 </ul>
             </div>
             <div id="submitDiv" class="mt-4">
-                <button id="formSubmitButton" type="submit" class="btn btn-primary" disabled>Continue</button>
+                <button id="formSubmitButton" type="submit" class="btn btn-primary">Continue</button>
             </div>
         </form>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
