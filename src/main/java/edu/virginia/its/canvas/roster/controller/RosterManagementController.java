@@ -7,6 +7,7 @@ import edu.virginia.its.canvas.roster.model.CanvasResponses.Term;
 import edu.virginia.its.canvas.roster.model.RosterManagementForm;
 import edu.virginia.its.canvas.roster.service.RosterManagementService;
 import edu.virginia.its.canvas.roster.utils.Constants;
+import edu.virginia.its.canvas.roster.utils.SectionUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -105,7 +106,7 @@ public class RosterManagementController {
     sectionsToRemove.forEach(sectionsToCheckSet::remove);
 
     List<Section> sectionsToCheck = new ArrayList<>(sectionsToCheckSet);
-    rosterManagementService.sortSectionsByName(sectionsToCheck);
+    SectionUtils.sortSectionsByName(sectionsToCheck);
     if (sectionsToCheck.isEmpty()) {
       return validate(model, rosterManagementForm);
     }
