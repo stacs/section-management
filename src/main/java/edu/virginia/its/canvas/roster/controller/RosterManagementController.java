@@ -49,7 +49,8 @@ public class RosterManagementController {
     model.addAttribute("currentCourseSections", currentCourseSections);
 
     List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
-    Map<Term, List<Section>> sectionsMap = rosterManagementService.getAllUserSections(userCourses);
+    Map<Term, List<Section>> sectionsMap =
+        rosterManagementService.getAllUserSectionsGroupedByTerm(userCourses);
     // Remove any sections from the Map that are already in the course as sectionsMap is used to
     // show options to the user on what sections they can add to their course.
     // TODO: maybe move this logic into RosterManagementService?
@@ -74,16 +75,9 @@ public class RosterManagementController {
     String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
     String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
     List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
-    Map<Term, List<Section>> sectionsMap = rosterManagementService.getAllUserSections(userCourses);
-    List<Section> allSections = sectionsMap.values().stream().flatMap(List::stream).toList();
+    List<Section> allSections = rosterManagementService.getAllUserSections(userCourses);
     Set<Section> sectionsToCheckSet =
-        new HashSet<>(
-            allSections.stream()
-                .filter(
-                    section ->
-                        rosterManagementForm.getSectionsToAdd().contains(section.id())
-                            || rosterManagementForm.getSectionsToKeep().contains(section.id()))
-                .toList());
+        getSectionsBeingAddedOrKept(allSections, rosterManagementForm);
 
     // Have to manually add the current course sections as we don't pass that in the
     // SectionsToKeep object as we don't let the user remove the original SIS sections from a
@@ -94,15 +88,8 @@ public class RosterManagementController {
     sectionsToCheckSet.addAll(currentCourseSections);
 
     // Don't show sections that we are in the process of removing
-    // TODO: is there a better way to figure out what sections to show for waitlist purposes vs all
-    // the service and stream calls?
     List<Section> sectionsToRemove =
-        currentCourseSections.stream()
-            .filter(
-                section ->
-                    section.crosslistedCourseId() != null
-                        && !rosterManagementForm.getSectionsToKeep().contains(section.id()))
-            .toList();
+        getSectionsToRemove(currentCourseSections, rosterManagementForm);
     sectionsToRemove.forEach(sectionsToCheckSet::remove);
 
     List<Section> sectionsToCheck = new ArrayList<>(sectionsToCheckSet);
@@ -123,30 +110,16 @@ public class RosterManagementController {
     // Don't try to remove sections that have a null crosslisted course id (meaning that they were
     // originally created in the current course).
     List<Section> sectionsToRemove =
-        currentCourseSections.stream()
-            .filter(
-                section ->
-                    section.crosslistedCourseId() != null
-                        && !rosterManagementForm.getSectionsToKeep().contains(section.id()))
-            .toList();
+        getSectionsToRemove(currentCourseSections, rosterManagementForm);
     model.addAttribute("sectionsToRemove", sectionsToRemove);
 
     List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
-    Map<Term, List<Section>> sectionsMap = rosterManagementService.getAllUserSections(userCourses);
-    List<Section> allSections = sectionsMap.values().stream().flatMap(List::stream).toList();
-    List<Section> sectionsToAdd =
-        allSections.stream()
-            .filter(section -> rosterManagementForm.getSectionsToAdd().contains(section.id()))
-            .toList();
+    List<Section> allSections = rosterManagementService.getAllUserSections(userCourses);
+    List<Section> sectionsToAdd = getSectionsToAdd(allSections, rosterManagementForm);
     model.addAttribute("sectionsToAdd", sectionsToAdd);
 
     List<Course> coursesToRemoveUserFrom =
-        userCourses.stream()
-            .filter(
-                course ->
-                    sectionsToAdd.stream()
-                        .anyMatch(section -> section.courseId().equals(course.id())))
-            .toList();
+        getCoursesToRemoveUserFrom(userCourses, allSections, rosterManagementForm);
     model.addAttribute("coursesToRemoveUserFrom", coursesToRemoveUserFrom);
 
     List<Section> waitlistedSections =
@@ -167,16 +140,12 @@ public class RosterManagementController {
     // Don't try to remove sections that have a null crosslisted course id (meaning that they were
     // originally created in the current course).
     List<Section> sectionsToRemove =
-        currentCourseSections.stream()
-            .filter(
-                section ->
-                    section.crosslistedCourseId() != null
-                        && !rosterManagementForm.getSectionsToKeep().contains(section.id()))
-            .toList();
+        getSectionsToRemove(currentCourseSections, rosterManagementForm);
     List<Section> sectionsToRemoveErrors = new ArrayList<>();
     for (Section sectionToRemove : sectionsToRemove) {
       log.info(
-          "Decrosslisting section '{}' back to course '{}'",
+          "User '{}' is decrosslisting section '{}' back to course '{}'",
+          computingId,
           sectionToRemove,
           sectionToRemove.crosslistedCourseId());
       boolean success = rosterManagementService.deCrosslistSection(sectionToRemove);
@@ -188,31 +157,72 @@ public class RosterManagementController {
     model.addAttribute("sectionsToRemoveErrors", sectionsToRemoveErrors);
 
     List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
-    Map<Term, List<Section>> sectionsMap = rosterManagementService.getAllUserSections(userCourses);
-    List<Section> allSections = sectionsMap.values().stream().flatMap(List::stream).toList();
-    List<Section> sectionsToAdd =
-        allSections.stream()
-            .filter(section -> rosterManagementForm.getSectionsToAdd().contains(section.id()))
-            .toList();
+    List<Section> allSections = rosterManagementService.getAllUserSections(userCourses);
+    List<Section> sectionsToAdd = getSectionsToAdd(allSections, rosterManagementForm);
     List<Section> sectionsToAddErrors = new ArrayList<>();
-    Set<String> coursesToRemoveUserFrom = new HashSet<>();
     for (Section sectionToAdd : sectionsToAdd) {
-      log.info("Crosslisting section '{}' to course '{}'", sectionToAdd, courseId);
+      log.info(
+          "User '{}' is crosslisting section '{}' to course '{}'",
+          computingId,
+          sectionToAdd,
+          courseId);
       boolean success = rosterManagementService.crosslistSection(sectionToAdd, courseId);
       if (!success) {
         sectionsToAddErrors.add(sectionToAdd);
-        continue;
       }
-      if (rosterManagementForm.isRemoveFromCourse()) {
-        coursesToRemoveUserFrom.add(sectionToAdd.courseId());
-      }
-    }
-    for (String courseToRemoveUserFromId : coursesToRemoveUserFrom) {
-      log.info("Removing user '{}' from course '{}'", computingId, courseToRemoveUserFromId);
-      rosterManagementService.removeUserFromCourse(computingId, courseToRemoveUserFromId);
     }
     model.addAttribute("sectionsToAdd", sectionsToAdd);
     model.addAttribute("sectionsToAddErrors", sectionsToAddErrors);
+
+    if (rosterManagementForm.isRemoveFromCourse()) {
+      List<Course> coursesToRemoveUserFrom =
+          getCoursesToRemoveUserFrom(userCourses, allSections, rosterManagementForm);
+      for (Course course : coursesToRemoveUserFrom) {
+        log.info("Removing user '{}' from course '{}'", computingId, course.id());
+        rosterManagementService.removeUserFromCourse(computingId, course.id());
+      }
+    }
+
     return "success";
+  }
+
+  private Set<Section> getSectionsBeingAddedOrKept(
+      List<Section> allSections, RosterManagementForm rosterManagementForm) {
+    return new HashSet<>(
+        allSections.stream()
+            .filter(
+                section ->
+                    rosterManagementForm.getSectionsToAdd().contains(section.id())
+                        || rosterManagementForm.getSectionsToKeep().contains(section.id()))
+            .toList());
+  }
+
+  private List<Section> getSectionsToRemove(
+      List<Section> currentCourseSections, RosterManagementForm rosterManagementForm) {
+    return currentCourseSections.stream()
+        .filter(
+            section ->
+                section.crosslistedCourseId() != null
+                    && !rosterManagementForm.getSectionsToKeep().contains(section.id()))
+        .toList();
+  }
+
+  private List<Section> getSectionsToAdd(
+      List<Section> allSections, RosterManagementForm rosterManagementForm) {
+    return allSections.stream()
+        .filter(section -> rosterManagementForm.getSectionsToAdd().contains(section.id()))
+        .toList();
+  }
+
+  private List<Course> getCoursesToRemoveUserFrom(
+      List<Course> userCourses,
+      List<Section> allSections,
+      RosterManagementForm rosterManagementForm) {
+    List<Section> sectionsToAdd = getSectionsToAdd(allSections, rosterManagementForm);
+    return userCourses.stream()
+        .filter(
+            course ->
+                sectionsToAdd.stream().anyMatch(section -> section.courseId().equals(course.id())))
+        .toList();
   }
 }

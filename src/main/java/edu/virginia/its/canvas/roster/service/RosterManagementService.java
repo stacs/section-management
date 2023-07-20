@@ -40,24 +40,45 @@ public class RosterManagementService {
     return sections;
   }
 
-  public Map<Term, List<Section>> getAllUserSections(List<Course> userCourses) {
+  public Map<Term, List<Section>> getAllUserSectionsGroupedByTerm(List<Course> userCourses) {
     // Sort terms by most recent
     Map<Term, List<Section>> sectionsMap =
         new TreeMap<>(Comparator.comparing(Term::sisTermId, Comparator.reverseOrder()));
-    // TODO: try to use spring reactive to make these calls simultaneously
-    for (Course course : userCourses) {
-      if (!isValidTerm(course.term())) {
+    List<Section> allSections = getAllUserSections(userCourses);
+    for (Section section : allSections) {
+      // Unfortunately the Section object that comes from Canvas does not include the Term, so we
+      // need to associate
+      // the Course to the Section in order to determine what the Section's Term is.
+      Course course =
+          userCourses.stream()
+              .filter(c -> section.courseId().equals(c.id()))
+              .findFirst()
+              .orElse(null);
+      if (course == null) {
+        log.warn("Could not find course object for section '{}'", section);
         continue;
       }
       sectionsMap.computeIfAbsent(course.term(), k -> new ArrayList<>());
-      List<Section> sections = canvasApi.getCourseSections(course.id());
-      List<Section> validSections = SectionUtils.getValidSisSections(sections);
-      sectionsMap.get(course.term()).addAll(validSections);
+      sectionsMap.get(course.term()).add(section);
     }
     sectionsMap.values().removeIf(List::isEmpty);
     // Sort sections within a term by name
     sectionsMap.values().forEach(SectionUtils::sortSectionsByName);
     return sectionsMap;
+  }
+
+  public List<Section> getAllUserSections(List<Course> userCourses) {
+    List<Section> allSections = new ArrayList<>();
+    // TODO: try to use spring reactive to make these calls simultaneously
+    for (Course course : userCourses) {
+      if (!isValidTerm(course.term())) {
+        continue;
+      }
+      List<Section> sections = canvasApi.getCourseSections(course.id());
+      List<Section> validSections = SectionUtils.getValidSisSections(sections);
+      allSections.addAll(validSections);
+    }
+    return allSections;
   }
 
   public boolean crosslistSection(Section section, String newCourseId) {
