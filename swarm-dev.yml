@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  final-grades:
+  roster-management:
     image: ghcr.io/stacs/roster-management:latest
     networks:
       - collab-ingress-test
