@@ -29,10 +29,18 @@
         </li>
       </ul>
     </div>
-    <div th:unless="${#lists.isEmpty(waitlistedSections)}">
+    <div th:unless="${#lists.isEmpty(waitlistedSectionsToAdd)}">
       <h6>Waitlists will be enabled for the following sections:</h6>
       <ul>
-        <li th:each="section : ${waitlistedSections}" th:inline="text">
+        <li th:each="section : ${waitlistedSectionsToAdd}" th:inline="text">
+          [[${section.sisSectionId}]]
+        </li>
+      </ul>
+    </div>
+    <div th:unless="${#lists.isEmpty(waitlistedSectionsToRemove)}">
+      <h6>Waitlists will be disabled for the following sections:</h6>
+      <ul>
+        <li th:each="section : ${waitlistedSectionsToRemove}" th:inline="text">
           [[${section.sisSectionId}]]
         </li>
       </ul>
@@ -47,11 +55,11 @@
         </li>
       </ul>
     </div>
-    <div th:if="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSections)}">
+    <div th:if="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSectionsToAdd) and #lists.isEmpty(waitlistedSectionsToRemove)}">
       <p>No changes to your course site were detected.</p>
     </div>
     <a id="backButton" th:href="@{/launch}" class="btn btn-primary">Back</a>
-    <button th:unless="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSections)}"
+    <button th:unless="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSectionsToAdd) and #lists.isEmpty(waitlistedSectionsToRemove)}"
             id="formSubmitButton" type="submit" class="btn btn-primary ml-2">Save</button>
   </form>
 </body>

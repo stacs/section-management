@@ -5,7 +5,9 @@ import edu.virginia.its.canvas.roster.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.roster.model.CanvasResponses.Term;
 import edu.virginia.its.canvas.roster.model.RosterManagementForm;
+import edu.virginia.its.canvas.roster.model.WaitlistedSection;
 import edu.virginia.its.canvas.roster.service.RosterManagementService;
+import edu.virginia.its.canvas.roster.service.WaitlistedSectionService;
 import edu.virginia.its.canvas.roster.utils.Constants;
 import edu.virginia.its.canvas.roster.utils.SectionUtils;
 import java.util.ArrayList;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class RosterManagementController {
 
   @Autowired private RosterManagementService rosterManagementService;
+
+  @Autowired private WaitlistedSectionService waitlistedSectionService;
 
   @GetMapping("/launch")
   public String launch() {
@@ -76,28 +80,24 @@ public class RosterManagementController {
     String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
     List<Course> userCourses = rosterManagementService.getUserCourses(computingId);
     List<Section> allSections = rosterManagementService.getAllUserSections(userCourses);
-    Set<Section> sectionsToCheckSet =
-        getSectionsBeingAddedOrKept(allSections, rosterManagementForm);
-
-    // Have to manually add the current course sections as we don't pass that in the
-    // SectionsToKeep object as we don't let the user remove the original SIS sections from a
-    // course.
-    // The reason SectionsToCheck starts as a Set is so we don't double show Sections between
-    // CurrentCourseSections and SectionsToKeep.
     List<Section> currentCourseSections = rosterManagementService.getValidCourseSections(courseId);
-    sectionsToCheckSet.addAll(currentCourseSections);
-
-    // Don't show sections that we are in the process of removing
-    List<Section> sectionsToRemove =
-        getSectionsToRemove(currentCourseSections, rosterManagementForm);
-    sectionsToRemove.forEach(sectionsToCheckSet::remove);
-
-    List<Section> sectionsToCheck = new ArrayList<>(sectionsToCheckSet);
-    SectionUtils.sortSectionsByName(sectionsToCheck);
-    if (sectionsToCheck.isEmpty()) {
+    List<Section> potentialWaitlistSections =
+        getPotentialWaitlistSections(allSections, currentCourseSections, rosterManagementForm);
+    SectionUtils.sortSectionsByName(potentialWaitlistSections);
+    if (potentialWaitlistSections.isEmpty()) {
       return validate(model, rosterManagementForm);
     }
-    model.addAttribute("sectionsToCheck", sectionsToCheck);
+    model.addAttribute("potentialWaitlistSections", potentialWaitlistSections);
+
+    // TODO: move query of waitlisted sections from our DB into Boomi?
+    List<WaitlistedSection> waitlistedSectionList =
+        waitlistedSectionService.findAllSections(potentialWaitlistSections);
+    List<String> waitlistedSectionsAlreadyEnabled =
+        waitlistedSectionList.stream()
+            .filter(WaitlistedSection::isWaitlisted)
+            .map(w -> Long.toString(w.getCanvasId()))
+            .toList();
+    rosterManagementForm.setWaitlistsToAdd(waitlistedSectionsAlreadyEnabled);
     return "waitlists";
   }
 
@@ -122,11 +122,18 @@ public class RosterManagementController {
         getCoursesToRemoveUserFrom(userCourses, allSections, rosterManagementForm);
     model.addAttribute("coursesToRemoveUserFrom", coursesToRemoveUserFrom);
 
-    List<Section> waitlistedSections =
-        allSections.stream()
+    List<Section> potentialWaitlistSections =
+        getPotentialWaitlistSections(allSections, currentCourseSections, rosterManagementForm);
+    List<Section> waitlistedSectionsToAdd =
+        potentialWaitlistSections.stream()
             .filter(section -> rosterManagementForm.getWaitlistsToAdd().contains(section.id()))
             .toList();
-    model.addAttribute("waitlistedSections", waitlistedSections);
+    model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
+    List<Section> waitlistedSectionsToRemove =
+        potentialWaitlistSections.stream()
+            .filter(section -> !rosterManagementForm.getWaitlistsToAdd().contains(section.id()))
+            .toList();
+    model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
     return "validate";
   }
 
@@ -183,6 +190,50 @@ public class RosterManagementController {
       }
     }
 
+    List<Section> potentialWaitlistSections =
+        getPotentialWaitlistSections(allSections, currentCourseSections, rosterManagementForm);
+    List<Section> waitlistedSectionsToAdd =
+        potentialWaitlistSections.stream()
+            .filter(section -> rosterManagementForm.getWaitlistsToAdd().contains(section.id()))
+            .toList();
+    List<Section> waitlistedSectionsToRemove =
+        potentialWaitlistSections.stream()
+            .filter(section -> !rosterManagementForm.getWaitlistsToAdd().contains(section.id()))
+            .toList();
+    List<WaitlistedSection> waitlistedSectionList =
+        waitlistedSectionService.findAllSections(potentialWaitlistSections);
+    for (Section section : waitlistedSectionsToAdd) {
+      WaitlistedSection waitlistedSection =
+          waitlistedSectionList.stream()
+              .filter(w -> section.id().equals(Long.toString(w.getCanvasId())))
+              .findFirst()
+              .orElse(null);
+      if (waitlistedSection == null) {
+        log.info("Creating record for waitlisted section to allow waitlists '{}'", section);
+        waitlistedSectionService.create(section);
+      } else {
+        log.info("Updating record for waitlisted section to allow waitlists '{}'", section);
+        waitlistedSection.setWaitlisted(true);
+        waitlistedSectionService.update(waitlistedSection);
+      }
+    }
+    model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
+    for (Section section : waitlistedSectionsToRemove) {
+      WaitlistedSection waitlistedSection =
+          waitlistedSectionList.stream()
+              .filter(w -> section.id().equals(Long.toString(w.getCanvasId())))
+              .findFirst()
+              .orElse(null);
+      // Should not have to worry about creating a row here as a record has to exist if the section
+      // is set to allow waitlists
+      if (waitlistedSection != null) {
+        log.info("Updating record for waitlisted section to not allow waitlists '{}'", section);
+        waitlistedSection.setWaitlisted(false);
+        waitlistedSectionService.update(waitlistedSection);
+      }
+    }
+    model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
+
     return "success";
   }
 
@@ -224,5 +275,27 @@ public class RosterManagementController {
             course ->
                 sectionsToAdd.stream().anyMatch(section -> section.courseId().equals(course.id())))
         .toList();
+  }
+
+  private List<Section> getPotentialWaitlistSections(
+      List<Section> allSections,
+      List<Section> currentCourseSections,
+      RosterManagementForm rosterManagementForm) {
+    Set<Section> sectionsToCheckSet =
+        getSectionsBeingAddedOrKept(allSections, rosterManagementForm);
+
+    // Have to manually add the current course sections as we don't pass that in the
+    // SectionsToKeep object as we don't let the user remove the original SIS sections from a
+    // course.
+    // The reason SectionsToCheck starts as a Set is so we don't double show Sections that were
+    // already in the course and are being kept in.
+    sectionsToCheckSet.addAll(currentCourseSections);
+
+    // Don't show sections that we are in the process of removing
+    List<Section> sectionsToRemove =
+        getSectionsToRemove(currentCourseSections, rosterManagementForm);
+    sectionsToRemove.forEach(sectionsToCheckSet::remove);
+
+    return new ArrayList<>(sectionsToCheckSet);
   }
 }

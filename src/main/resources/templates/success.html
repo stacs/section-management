@@ -11,10 +11,20 @@
         <p>The following changes were made to your course:</p>
         <ul>
             <li th:each="section : ${sectionsToAdd}" th:inline="text">
-                [[${section.sisSectionId}]] was added.
+                Section [[${section.sisSectionId}]] was added.
             </li>
             <li th:each="section : ${sectionsToRemove}" th:inline="text">
-                [[${section.sisSectionId}]] was removed.
+                Section [[${section.sisSectionId}]] was removed.
+            </li>
+        </ul>
+        <ul>
+            <li th:each="section : ${waitlistedSectionsToAdd}" th:inline="text">
+                Waitlists were enabled for section [[${section.sisSectionId}]]
+            </li>
+        </ul>
+        <ul>
+            <li th:each="section : ${waitlistedSectionsToRemove}" th:inline="text">
+                Waitlists were disabled for section [[${section.sisSectionId}]]
             </li>
         </ul>
         <div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors)}">

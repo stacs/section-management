@@ -18,7 +18,7 @@
   <input id="selectAllSectionsForWaitlistsButton" type="checkbox" onclick="selectAllSectionsForWaitlists()" class="form-check-input"/>
   <label for="selectAllSectionsForWaitlistsButton" class="form-check-label">Add waitlisted students for all sections</label>
   <ul>
-    <li class="form-check" th:each="section : ${sectionsToCheck}">
+    <li class="form-check" th:each="section : ${potentialWaitlistSections}">
       <input th:id="'waitlist-section-input-' + ${section.id}" type="checkbox"
              th:field="*{waitlistsToAdd}" th:value="${section.id}" class="form-check-input"/>
       <label th:for="'waitlist-section-input-' + ${section.id}" class="form-check-label" th:inline="text">
