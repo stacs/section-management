@@ -58,7 +58,7 @@
     <div th:if="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSectionsToAdd) and #lists.isEmpty(waitlistedSectionsToRemove)}">
       <p>No changes to your course site were detected.</p>
     </div>
-    <a id="backButton" th:href="@{/launch}" class="btn btn-primary">Back</a>
+    <a id="cancelButton" th:href="@{/launch}" class="btn btn-primary">Cancel</a>
     <button th:unless="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSectionsToAdd) and #lists.isEmpty(waitlistedSectionsToRemove)}"
             id="formSubmitButton" type="submit" class="btn btn-primary ml-2">Save</button>
   </form>
