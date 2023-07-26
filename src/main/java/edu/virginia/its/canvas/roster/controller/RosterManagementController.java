@@ -210,10 +210,16 @@ public class RosterManagementController {
               .findFirst()
               .orElse(null);
       if (waitlistedSection == null) {
-        log.info("Creating record for waitlisted section to allow waitlists '{}'", section);
+        log.info(
+            "User '{}' creating record for waitlisted section to allow waitlists '{}'",
+            computingId,
+            section);
         waitlistedSectionService.create(section);
       } else {
-        log.info("Updating record for waitlisted section to allow waitlists '{}'", section);
+        log.info(
+            "User '{}' updating record for waitlisted section to allow waitlists '{}'",
+            computingId,
+            section);
         waitlistedSection.setWaitlisted(true);
         waitlistedSectionService.update(waitlistedSection);
       }
@@ -228,7 +234,10 @@ public class RosterManagementController {
       // Should not have to worry about creating a row here as a record has to exist if the section
       // is set to allow waitlists
       if (waitlistedSection != null) {
-        log.info("Updating record for waitlisted section to not allow waitlists '{}'", section);
+        log.info(
+            "User '{}' updating record for waitlisted section to not allow waitlists '{}'",
+            computingId,
+            section);
         waitlistedSection.setWaitlisted(false);
         waitlistedSectionService.update(waitlistedSection);
       }
