@@ -188,6 +188,7 @@ public class RosterManagementController {
         log.info("Removing user '{}' from course '{}'", computingId, course.id());
         rosterManagementService.removeUserFromCourse(computingId, course.id());
       }
+      model.addAttribute("coursesToRemoveUserFrom", coursesToRemoveUserFrom);
     }
 
     List<Section> potentialWaitlistSections =
