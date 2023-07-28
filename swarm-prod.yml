@@ -1,6 +1,7 @@
 version: '3.7'
+
 services:
-  final-grades:
+  roster-management:
     image: ghcr.io/stacs/roster-management:latest
     networks:
       - collab-ingress-prod
@@ -20,3 +21,28 @@ services:
         target: canvas.apiUrl
       - source: prod_canvas_api_token
         target: canvas.apiToken
+      - source: prod_boomi_api_url
+        target: boomi.apiUrl
+      - source: prod_boomi_api_token
+        target: boomi.apiToken
+
+networks:
+  collab-ingress-prod:
+    external: true
+    name: collab20-prod
+
+secrets:
+  prod_db_url:
+    external: true
+  prod_db_user:
+    external: true
+  prod_db_pass:
+    external: true
+  prod_canvas_api_url:
+    external: true
+  prod_canvas_api_token:
+    external: true
+  prod_boomi_api_url:
+    external: true
+  prod_boomi_api_token:
+    external: true
