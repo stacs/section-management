@@ -24,22 +24,3 @@ function selectAllSectionsForWaitlists() {
     input.checked = checkAll;
   });
 }
-
-$(document).ready(function() {
-  const spinnerSpan = document.createElement('span');
-  spinnerSpan.setAttribute("class", "spinner-border spinner-border-sm");
-  spinnerSpan.setAttribute("role", "status");
-  spinnerSpan.setAttribute("aria-hidden", "true");
-  var buttonList = document.querySelectorAll(".btn-primary");
-  buttonList.forEach(button => {
-    button.onclick = function() {
-      // Once a button is clicked we want to disable all buttons found on the page, but only show the spinner on the clicked button.
-      buttonList.forEach(button2 => {
-        button2.disabled = true;
-        button2.classList.add("disabled");
-        button2.setAttribute("aria-disabled", "true");
-      });
-      button.appendChild(spinnerSpan);
-    };
-  });
-});
