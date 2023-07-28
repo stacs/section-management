@@ -9,30 +9,38 @@
     <body>
         <div th:replace="fragments/header :: header"></div>
         <h5>The following changes were made to your course:</h5>
-        <h6>Sections added:</h6>
-        <ul>
-            <li th:each="section : ${sectionsToAdd}" th:inline="text">
-                Section [[${section.sisSectionId}]]
-            </li>
-        </ul>
-        <h6>Sections removed:</h6>
-        <ul>
-            <li th:each="section : ${sectionsToRemove}" th:inline="text">
-                Section [[${section.sisSectionId}]]
-            </li>
-        </ul>
-        <h6>Waitlists enabled:</h6>
-        <ul>
-            <li th:each="section : ${waitlistedSectionsToAdd}" th:inline="text">
-                Section [[${section.sisSectionId}]]
-            </li>
-        </ul>
-        <h6>Waitlists disabled:</h6>
-        <ul>
-            <li th:each="section : ${waitlistedSectionsToRemove}" th:inline="text">
-                Section [[${section.sisSectionId}]]
-            </li>
-        </ul>
+        <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
+            <h6>Sections added:</h6>
+            <ul>
+                <li th:each="section : ${sectionsToAdd}" th:inline="text">
+                    Section [[${section.sisSectionId}]]
+                </li>
+            </ul>
+        </div>
+        <div th:unless="${#lists.isEmpty(sectionsToRemove)}">
+            <h6>Sections removed:</h6>
+            <ul>
+                <li th:each="section : ${sectionsToRemove}" th:inline="text">
+                    Section [[${section.sisSectionId}]]
+                </li>
+            </ul>
+        </div>
+        <div th:unless="${#lists.isEmpty(waitlistedSectionsToAdd)}">
+            <h6>Waitlists enabled:</h6>
+            <ul>
+                <li th:each="section : ${waitlistedSectionsToAdd}" th:inline="text">
+                    Section [[${section.sisSectionId}]]
+                </li>
+            </ul>
+        </div>
+        <div th:unless="${#lists.isEmpty(waitlistedSectionsToRemove)}">
+            <h6>Waitlists disabled:</h6>
+            <ul>
+                <li th:each="section : ${waitlistedSectionsToRemove}" th:inline="text">
+                    Section [[${section.sisSectionId}]]
+                </li>
+            </ul>
+        </div>
         <div th:unless="${#lists.isEmpty(coursesToRemoveUserFrom)}">
             <h6>Removed from the following courses:</h6>
             <ul>
