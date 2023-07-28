@@ -197,52 +197,18 @@ public class RosterManagementController {
         potentialWaitlistSections.stream()
             .filter(section -> rosterManagementForm.getWaitlistsToAdd().contains(section.id()))
             .toList();
+    if (!waitlistedSectionsToAdd.isEmpty()) {
+      waitlistedSectionService.addWaitlistSections(computingId, waitlistedSectionsToAdd);
+      model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
+    }
     List<Section> waitlistedSectionsToRemove =
         potentialWaitlistSections.stream()
             .filter(section -> !rosterManagementForm.getWaitlistsToAdd().contains(section.id()))
             .toList();
-    List<WaitlistedSection> waitlistedSectionList =
-        waitlistedSectionService.findAllSections(potentialWaitlistSections);
-    for (Section section : waitlistedSectionsToAdd) {
-      WaitlistedSection waitlistedSection =
-          waitlistedSectionList.stream()
-              .filter(w -> section.id().equals(Long.toString(w.getCanvasId())))
-              .findFirst()
-              .orElse(null);
-      if (waitlistedSection == null) {
-        log.info(
-            "User '{}' creating record for waitlisted section to allow waitlists '{}'",
-            computingId,
-            section);
-        waitlistedSectionService.create(section);
-      } else {
-        log.info(
-            "User '{}' updating record for waitlisted section to allow waitlists '{}'",
-            computingId,
-            section);
-        waitlistedSection.setWaitlisted(true);
-        waitlistedSectionService.update(waitlistedSection);
-      }
+    if (!waitlistedSectionsToRemove.isEmpty()) {
+      waitlistedSectionService.removeWaitlistSections(computingId, waitlistedSectionsToRemove);
+      model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
     }
-    model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
-    for (Section section : waitlistedSectionsToRemove) {
-      WaitlistedSection waitlistedSection =
-          waitlistedSectionList.stream()
-              .filter(w -> section.id().equals(Long.toString(w.getCanvasId())))
-              .findFirst()
-              .orElse(null);
-      // Should not have to worry about creating a row here as a record has to exist if the section
-      // is set to allow waitlists
-      if (waitlistedSection != null) {
-        log.info(
-            "User '{}' updating record for waitlisted section to not allow waitlists '{}'",
-            computingId,
-            section);
-        waitlistedSection.setWaitlisted(false);
-        waitlistedSectionService.update(waitlistedSection);
-      }
-    }
-    model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
 
     return "success";
   }
