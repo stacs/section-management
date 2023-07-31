@@ -12,9 +12,9 @@
     <input type="hidden" th:field="*{sectionsToAdd}"/>
     <input type="hidden" th:field="*{sectionsToKeep}"/>
     <input type="hidden" th:field="*{waitlistsToAdd}"/>
-    <h4>Please confirm the following changes to your course site:</h4>
+    <h2>Please confirm the following changes to your course site:</h2>
     <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
-      <h6>Sections being added:</h6>
+      <h3>Add sections:</h3>
       <ul>
         <li th:each="section : ${sectionsToAdd}" th:inline="text">
           [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
@@ -22,7 +22,7 @@
       </ul>
     </div>
     <div th:unless="${#lists.isEmpty(sectionsToRemove)}">
-      <h6>Sections being removed:</h6>
+      <h3>Remove sections:</h3>
       <ul>
         <li th:each="section : ${sectionsToRemove}" th:inline="text">
           [[${section.sisSectionId}]] - [[${section.totalStudents}]] students
@@ -30,7 +30,7 @@
       </ul>
     </div>
     <div th:unless="${#lists.isEmpty(waitlistedSectionsToAdd)}">
-      <h6>Waitlists will be enabled for the following sections:</h6>
+      <h3>Include waitlists:</h3>
       <ul>
         <li th:each="section : ${waitlistedSectionsToAdd}" th:inline="text">
           [[${section.sisSectionId}]]
@@ -38,7 +38,7 @@
       </ul>
     </div>
     <div th:unless="${#lists.isEmpty(waitlistedSectionsToRemove)}">
-      <h6>Waitlists will be disabled for the following sections:</h6>
+      <h3>Remove waitlists:</h3>
       <ul>
         <li th:each="section : ${waitlistedSectionsToRemove}" th:inline="text">
           [[${section.sisSectionId}]]

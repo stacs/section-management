@@ -11,9 +11,8 @@
 <form action="#" th:action="@{/validate}" th:object="${sectionManagementForm}" method="post">
   <input type="hidden" th:field="*{sectionsToAdd}"/>
   <input type="hidden" th:field="*{sectionsToKeep}"/>
-  <h4>Manage Waitlisted Students</h4>
-  <p>Select sections to add any waitlisted students in those sections to the course site.
-  Deselect sections to remove any waitlisted students in those sections from the course site.</p>
+  <h2>Manage Waitlisted Students</h2>
+  <p>Select sections to add any waitlisted students in the corresponding rosters to the course site. Deselect sections to remove the waitlisted students.</p>
   <p>Changes to add or remove waitlisted students will be reflected in the course site within two hours.</p>
   <input id="selectAllSectionsForWaitlistsButton" type="checkbox" onclick="selectAllSectionsForWaitlists()" class="form-check-input"/>
   <label for="selectAllSectionsForWaitlistsButton" class="form-check-label">Add waitlisted students for all sections</label>
@@ -21,7 +20,8 @@
     <li class="form-check" th:each="section : ${potentialWaitlistSections}">
       <input th:id="'waitlist-section-input-' + ${section.id}" type="checkbox"
              th:field="*{waitlistsToAdd}" th:value="${section.id}" class="form-check-input"/>
-      <label th:for="'waitlist-section-input-' + ${section.id}" class="form-check-label" th:inline="text">
+      <label th:for="'waitlist-section-input-' + ${section.id}" class="form-check-label" th:inline="text"
+             th:attr="aria-label='Add Waitlisted Students to ' + ${section.sisSectionId}">
         [[${section.sisSectionId}]]
       </label>
     </li>
