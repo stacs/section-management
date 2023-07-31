@@ -8,20 +8,18 @@
 
     <body>
         <div th:replace="fragments/header :: header"></div>
-        <p>By default, courses are created in UVACanvas for each course roster or section listed in the Student Information System (SIS).
-            The SIS Section Management tool allows instructors to add or remove additional course rosters or sections in a single course in UVACanvas.</p>
+        <p>By default, a course site and section are created in UVACanvas for each roster listed in the Student Information System (SIS).
+            The Manage SIS Sections tool allows instructors to add or remove additional SIS sections in a single course site in UVACanvas.</p>
         <form id="sectionManagementForm" action="#" th:action="@{/waitlists}" th:object="${sectionManagementForm}" method="post">
-            <h4 class="mt-4">Course Information</h4>
+            <h2 class="mt-4">Course Information</h2>
             <p>You are managing SIS sections for the following course:</p>
             <strong>UVACanvas Course Name:</strong><div th:text="${courseName}">My Course Name</div>
             <strong>UVACanvas Course Code:</strong><div th:text="${courseCode}">My Course Code</div>
 
-            <h4 class="mt-4">Currently added SIS sections</h4>
-            <p>Any additional SIS sections previously added to the course are listed below.
-                Deselect previously added sections to remove them from the course (The original SIS sections in the course cannot be removed).
-            </p>
+            <h2 class="mt-4">Currently added SIS sections</h2>
+            <p>Any SIS sections included in the course site are listed below. Deselect previously added sections to remove them. The default SIS section cannot be removed.</p>
             <div>
-                <p th:if="${#lists.isEmpty(currentCourseSections)}">No additional SIS sections were previously added to the course</p>
+                <p th:if="${#lists.isEmpty(currentCourseSections)}">No additional SIS sections were previously added to the course.</p>
                 <ul th:else>
                     <li class="form-check" th:each="section : ${currentCourseSections}">
                         <input th:id="'section-input-' + ${section.id}" type="checkbox"
@@ -34,9 +32,10 @@
                 </ul>
             </div>
 
-            <h4 class="mt-4">Add Additional SIS Sections</h4>
+            <h2 class="mt-4">Add Additional SIS Sections</h2>
             <div>
-                <label for="term-select">Select a term from the menu to view and select additional SIS sections to add to the course.  You can only add sections from a single term at a time.</label>
+                <label for="term-select">Select a term from the menu to add additional SIS sections.
+                    If a term is not listed in the menu, there are no additional sections available.</label>
                 <select id="term-select" th:field="*{selectedTerm}" onchange="selectTerm()" class="form-select mt-3">
                     <option selected th:value="-1">Select Term</option>
                     <option th:each="term : ${sectionsMap.keySet()}" th:value="${term.sisTermId}" th:text="${term.name}"></option>
@@ -44,7 +43,7 @@
             </div>
             <div th:id="'term-div-' + ${sectionMap.key.sisTermId}" th:each="sectionMap : ${sectionsMap}" style="display: none;" class="mt-3">
                 <input th:id="'selectAllSectionsForTerm' + ${sectionMap.key.sisTermId}" type="checkbox" onclick="selectAllSectionsForTerm(this)" class="form-check-input"/>
-                <label th:for="'selectAllSectionsForTerm' + ${sectionMap.key.sisTermId}" class="form-check-label">Select all sections</label>
+                <label th:for="'selectAllSectionsForTerm' + ${sectionMap.key.sisTermId}" class="form-check-label">Add all sections</label>
                 <ul>
                     <li class="form-check" th:each="section : ${sectionMap.value}" th:data-waitlist="${section.isWaitlist}"
                         th:style="${section.isWaitlist ? 'display:none' : 'display:block'}">
