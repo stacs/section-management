@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /lts-roster-management
+    context-path: /lts-section-management
 
 spring:
   datasource:

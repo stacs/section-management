@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /lts-roster-management
+    context-path: /lts-section-management
     session:
       timeout: 540m
 
