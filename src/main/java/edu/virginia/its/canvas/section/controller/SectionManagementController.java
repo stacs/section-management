@@ -125,15 +125,15 @@ public class SectionManagementController {
 
     List<Section> potentialWaitlistSections =
         getPotentialWaitlistSections(allSections, currentCourseSections, sectionManagementForm);
+    List<WaitlistedSection> waitlistedSectionList =
+        waitlistedSectionService.findAllSections(potentialWaitlistSections);
     List<Section> waitlistedSectionsToAdd =
-        potentialWaitlistSections.stream()
-            .filter(section -> sectionManagementForm.getWaitlistsToAdd().contains(section.id()))
-            .toList();
+        getWaitlistSectionsToAdd(
+            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
     model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
     List<Section> waitlistedSectionsToRemove =
-        potentialWaitlistSections.stream()
-            .filter(section -> !sectionManagementForm.getWaitlistsToAdd().contains(section.id()))
-            .toList();
+        getWaitlistSectionsToRemove(
+            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
     model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
     return "validate";
   }
@@ -184,18 +184,18 @@ public class SectionManagementController {
 
     List<Section> potentialWaitlistSections =
         getPotentialWaitlistSections(allSections, currentCourseSections, sectionManagementForm);
+    List<WaitlistedSection> waitlistedSectionList =
+        waitlistedSectionService.findAllSections(potentialWaitlistSections);
     List<Section> waitlistedSectionsToAdd =
-        potentialWaitlistSections.stream()
-            .filter(section -> sectionManagementForm.getWaitlistsToAdd().contains(section.id()))
-            .toList();
+        getWaitlistSectionsToAdd(
+            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
     if (!waitlistedSectionsToAdd.isEmpty()) {
       waitlistedSectionService.addWaitlistSections(computingId, waitlistedSectionsToAdd);
       model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
     }
     List<Section> waitlistedSectionsToRemove =
-        potentialWaitlistSections.stream()
-            .filter(section -> !sectionManagementForm.getWaitlistsToAdd().contains(section.id()))
-            .toList();
+        getWaitlistSectionsToRemove(
+            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
     if (!waitlistedSectionsToRemove.isEmpty()) {
       waitlistedSectionService.removeWaitlistSections(computingId, waitlistedSectionsToRemove);
       model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
@@ -264,5 +264,60 @@ public class SectionManagementController {
     sectionsToRemove.forEach(sectionsToCheckSet::remove);
 
     return new ArrayList<>(sectionsToCheckSet);
+  }
+
+  private List<Section> getWaitlistSectionsToAdd(
+      List<Section> potentialWaitlistSections,
+      List<WaitlistedSection> waitlistedSectionList,
+      SectionManagementForm sectionManagementForm) {
+    // We only want to return the Sections that are actually changing, so we compare against the
+    // WaitlistedSection list from the DB to see if any changes were actually made.
+    List<Section> waitlistSectionsToAdd = new ArrayList<>();
+    List<Section> potentialWaitlistSectionsToAdd =
+        potentialWaitlistSections.stream()
+            .filter(section -> sectionManagementForm.getWaitlistsToAdd().contains(section.id()))
+            .toList();
+    // Couldn't figure out a way to do this via a single stream call since a null DB row (no
+    // matching WaitlistSection) means waitlists are
+    // turned off for that section, but the DB could also have a row for a section that has no
+    // waitlists (when setting a waitlist from enabled
+    // to disabled we set the waitlist flag for the row to false vs removing the row).
+    // TODO: Maybe remove rows when turning off waitlists?  Will be a moot point if/when we ever
+    // move the read request for waitlist sections to Boomi.
+    for (Section section : potentialWaitlistSectionsToAdd) {
+      WaitlistedSection waitlistedSection =
+          waitlistedSectionList.stream()
+              .filter(waitlist -> waitlist.getSisSectionId().equals(section.sisSectionId()))
+              .findFirst()
+              .orElse(null);
+      if (waitlistedSection == null) {
+        waitlistSectionsToAdd.add(section);
+      } else {
+        if (!waitlistedSection.isWaitlisted()) {
+          waitlistSectionsToAdd.add(section);
+        }
+      }
+    }
+    return waitlistSectionsToAdd;
+  }
+
+  private List<Section> getWaitlistSectionsToRemove(
+      List<Section> potentialWaitlistSections,
+      List<WaitlistedSection> waitlistedSectionList,
+      SectionManagementForm sectionManagementForm) {
+    // We only want to return the Sections that are actually changing, so we compare against the
+    // WaitlistedSection list from the DB to see if any changes were actually made.
+    // This version is pretty simple compared to the version for added waitlists because we know we
+    // will always have a DB row.
+    return potentialWaitlistSections.stream()
+        .filter(
+            section ->
+                !sectionManagementForm.getWaitlistsToAdd().contains(section.id())
+                    && waitlistedSectionList.stream()
+                        .anyMatch(
+                            waitlist ->
+                                waitlist.getSisSectionId().equals(section.sisSectionId())
+                                    && waitlist.isWaitlisted()))
+        .toList();
   }
 }
