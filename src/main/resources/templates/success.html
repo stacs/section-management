@@ -41,14 +41,6 @@
                 </li>
             </ul>
         </div>
-        <div th:unless="${#lists.isEmpty(coursesToRemoveUserFrom)}">
-            <h6>Removed from the following courses:</h6>
-            <ul>
-                <li th:each="course : ${coursesToRemoveUserFrom}" th:inline="text">
-                    <strong>[[${course.name}]]</strong> ([[${course.courseCode}]])
-                </li>
-            </ul>
-        </div>
         <div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors)}">
             <p>The following errors occurred:</p>
             <ul>

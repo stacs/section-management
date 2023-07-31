@@ -45,16 +45,6 @@
         </li>
       </ul>
     </div>
-    <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
-      <input id="remove-from-course" type="checkbox" th:field="*{removeFromCourse}" class="form-check-input"/>
-      <label for="remove-from-course" class="form-check-label">Remove me from previous courses for added SIS sections</label>
-      <p>Selecting this option will remove you from the following courses:</p>
-      <ul>
-        <li th:each="course : ${coursesToRemoveUserFrom}" th:inline="text">
-          <strong>[[${course.name}]]</strong> ([[${course.courseCode}]])
-        </li>
-      </ul>
-    </div>
     <div th:if="${#lists.isEmpty(sectionsToAdd) and #lists.isEmpty(sectionsToRemove) and #lists.isEmpty(waitlistedSectionsToAdd) and #lists.isEmpty(waitlistedSectionsToRemove)}">
       <p>No changes to your course site were detected.</p>
     </div>
