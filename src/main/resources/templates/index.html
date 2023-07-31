@@ -43,6 +43,8 @@
                 </select>
             </div>
             <div th:id="'term-div-' + ${sectionMap.key.sisTermId}" th:each="sectionMap : ${sectionsMap}" style="display: none;" class="mt-3">
+                <input th:id="'selectAllSectionsForTerm' + ${sectionMap.key.sisTermId}" type="checkbox" onclick="selectAllSectionsForTerm(this)" class="form-check-input"/>
+                <label th:for="'selectAllSectionsForTerm' + ${sectionMap.key.sisTermId}" class="form-check-label">Select all sections</label>
                 <ul>
                     <li class="form-check" th:each="section : ${sectionMap.value}" th:data-waitlist="${section.isWaitlist}"
                         th:style="${section.isWaitlist ? 'display:none' : 'display:block'}">

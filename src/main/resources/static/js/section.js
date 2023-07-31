@@ -24,3 +24,12 @@ function selectAllSectionsForWaitlists() {
     input.checked = checkAll;
   });
 }
+
+function selectAllSectionsForTerm(element) {
+  var checked = element.checked;
+  var parentDiv = element.parentNode;
+  var inputList = parentDiv.querySelectorAll('input');
+  inputList.forEach(input => {
+    input.checked = checked;
+  });
+}
