@@ -182,16 +182,6 @@ public class SectionManagementController {
     model.addAttribute("sectionsToAdd", sectionsToAdd);
     model.addAttribute("sectionsToAddErrors", sectionsToAddErrors);
 
-    if (sectionManagementForm.isRemoveFromCourse()) {
-      List<Course> coursesToRemoveUserFrom =
-          getCoursesToRemoveUserFrom(userCourses, allSections, sectionManagementForm);
-      for (Course course : coursesToRemoveUserFrom) {
-        log.info("Removing user '{}' from course '{}'", computingId, course.id());
-        sectionManagementService.removeUserFromCourse(computingId, course.id());
-      }
-      model.addAttribute("coursesToRemoveUserFrom", coursesToRemoveUserFrom);
-    }
-
     List<Section> potentialWaitlistSections =
         getPotentialWaitlistSections(allSections, currentCourseSections, sectionManagementForm);
     List<Section> waitlistedSectionsToAdd =
