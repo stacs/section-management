@@ -1,13 +1,13 @@
 version: '3.7'
 
 services:
-  roster-management:
-    image: ghcr.io/stacs/roster-management:latest
+  section-management:
+    image: ghcr.io/stacs/section-management:latest
     networks:
       - collab-ingress-test
     environment:
       VIRTUAL_HOST_WEIGHT: 5
-      VIRTUAL_HOST: '/lts-roster-management/*'
+      VIRTUAL_HOST: '/lts-section-management/*'
       SERVICE_PORTS: 8080
       SPRING_PROFILES_ACTIVE: dev
     secrets:

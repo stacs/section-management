@@ -8,9 +8,9 @@
         <version>1.0.0</version>
         <relativePath />
     </parent>
-    <artifactId>roster-management</artifactId>
+    <artifactId>section-management</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>roster-management</name>
+    <name>section-management</name>
 
     <dependencies>
         <dependency>

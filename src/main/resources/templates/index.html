@@ -10,7 +10,7 @@
         <div th:replace="fragments/header :: header"></div>
         <p>By default, courses are created in UVACanvas for each course roster or section listed in the Student Information System (SIS).
             The SIS Section Management tool allows instructors to add or remove additional course rosters or sections in a single course in UVACanvas.</p>
-        <form id="rosterManagementForm" action="#" th:action="@{/waitlists}" th:object="${rosterManagementForm}" method="post">
+        <form id="sectionManagementForm" action="#" th:action="@{/waitlists}" th:object="${sectionManagementForm}" method="post">
             <h4 class="mt-4">Course Information</h4>
             <p>You are managing SIS sections for the following course:</p>
             <strong>UVACanvas Course Name:</strong><div th:text="${courseName}">My Course Name</div>

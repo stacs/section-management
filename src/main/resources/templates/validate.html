@@ -8,7 +8,7 @@
 
 <body>
   <div th:replace="fragments/header :: header"></div>
-  <form action="#" th:action="@{/apply-changes}" th:object="${rosterManagementForm}" method="post">
+  <form action="#" th:action="@{/apply-changes}" th:object="${sectionManagementForm}" method="post">
     <input type="hidden" th:field="*{sectionsToAdd}"/>
     <input type="hidden" th:field="*{sectionsToKeep}"/>
     <input type="hidden" th:field="*{waitlistsToAdd}"/>
