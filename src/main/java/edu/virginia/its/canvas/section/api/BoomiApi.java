@@ -1,5 +1,7 @@
 package edu.virginia.its.canvas.section.api;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -37,6 +39,8 @@ public class BoomiApi {
     boomiApi = WebClient.create(boomiUrl);
     requestTimeout = Duration.ofSeconds(boomiApiTimeout);
     objectMapper = new ObjectMapper();
+    // Boomi expects the waitlist Boolean to be a String
+    objectMapper.configOverride(Boolean.class).setFormat(JsonFormat.Value.forShape(Shape.STRING));
   }
 
   public boolean updateWaitlistsForSections(List<WaitlistedSection> waitlistedSections) {
@@ -53,8 +57,8 @@ public class BoomiApi {
     if (!uvaSectionWaitlists.isEmpty()) {
       ObjectNode body = objectMapper.createObjectNode();
       ArrayNode waitlists = objectMapper.valueToTree(uvaSectionWaitlists);
-      log.info("Sending the following request to Boomi: {}", waitlists.toPrettyString());
       body.set("waitlists", waitlists);
+      log.info("Sending the following body request to Boomi: {}", body);
       ClientResponse response =
           boomiApi
               .post()
