@@ -1,9 +1,9 @@
 package edu.virginia.its.canvas.section.api;
 
+import edu.virginia.its.canvas.lti.util.Constants;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Enrollment;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Section;
-import edu.virginia.its.canvas.section.utils.Constants;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

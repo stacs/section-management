@@ -1,6 +1,6 @@
 package edu.virginia.its.canvas.section;
 
-import edu.virginia.its.canvas.section.utils.Constants;
+import edu.virginia.its.canvas.lti.util.Constants;
 import edu.virginia.lts.canvas.Config;
 import edu.virginia.lts.canvas.Extension;
 import edu.virginia.lts.canvas.Placement;
@@ -17,12 +17,14 @@ public class CanvasJsonConfig {
   @Value("${ltitool.baseUrl}")
   private String baseUrl;
 
+  @Value("${ltitool.toolName}")
+  private String toolName;
+
   @Value("${server.servlet.context-path}")
   private String contextPath;
 
   @Bean
   public Config getConfig() throws MalformedURLException {
-    String toolName = this.getClass().getPackage().getImplementationTitle();
     String domain = new URL(baseUrl).getHost();
     String appUrl = baseUrl + contextPath;
 

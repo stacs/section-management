@@ -20,3 +20,4 @@ ltitool:
     apiUrl: https://localhost/api/v1
     apiToken: 1234
     apiTimeout: 15
+  toolName: section-management

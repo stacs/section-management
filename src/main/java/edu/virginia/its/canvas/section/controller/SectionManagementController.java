@@ -1,6 +1,7 @@
 package edu.virginia.its.canvas.section.controller;
 
 import edu.virginia.its.canvas.lti.util.CanvasAuthenticationToken;
+import edu.virginia.its.canvas.lti.util.Constants;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Term;
@@ -8,7 +9,6 @@ import edu.virginia.its.canvas.section.model.SectionManagementForm;
 import edu.virginia.its.canvas.section.model.WaitlistedSection;
 import edu.virginia.its.canvas.section.service.SectionManagementService;
 import edu.virginia.its.canvas.section.service.WaitlistedSectionService;
-import edu.virginia.its.canvas.section.utils.Constants;
 import edu.virginia.its.canvas.section.utils.SectionUtils;
 import java.util.ArrayList;
 import java.util.HashSet;

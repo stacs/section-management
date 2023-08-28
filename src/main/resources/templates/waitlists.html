@@ -11,23 +11,22 @@
 <form action="#" th:action="@{/validate}" th:object="${sectionManagementForm}" method="post">
   <input type="hidden" th:field="*{sectionsToAdd}"/>
   <input type="hidden" th:field="*{sectionsToKeep}"/>
-  <h2>Manage Waitlisted Students</h2>
-  <p>Select sections to add any waitlisted students in the corresponding rosters to the course site. Deselect sections to remove the waitlisted students.</p>
-  <p>Changes to add or remove waitlisted students will be reflected in the course site within two hours.</p>
+  <h2 th:text="#{waitlists.header}">Manage Waitlisted Students</h2>
+  <p th:text="#{waitlists.description1}">Select sections to add any waitlisted students in the corresponding rosters to the course site. Deselect sections to remove the waitlisted students.</p>
+  <p th:text="#{waitlists.description2}">Changes to add or remove waitlisted students will be reflected in the course site within two hours.</p>
   <input id="selectAllSectionsForWaitlistsButton" type="checkbox" onclick="selectAllSectionsForWaitlists()" class="form-check-input"/>
-  <label for="selectAllSectionsForWaitlistsButton" class="form-check-label">Add waitlisted students for all sections</label>
+  <label for="selectAllSectionsForWaitlistsButton" class="form-check-label" th:text="#{waitlists.addAllButton}">Add waitlisted students for all sections</label>
   <ul>
     <li class="form-check" th:each="section : ${potentialWaitlistSections}">
       <input th:id="'waitlist-section-input-' + ${section.id}" type="checkbox"
              th:field="*{waitlistsToAdd}" th:value="${section.id}" class="form-check-input"/>
-      <label th:for="'waitlist-section-input-' + ${section.id}" class="form-check-label" th:inline="text"
-             th:attr="aria-label='Add Waitlisted Students to ' + ${section.sisSectionId}">
-        [[${section.sisSectionId}]]
-      </label>
+      <label th:for="'waitlist-section-input-' + ${section.id}" class="form-check-label"
+             th:attr="aria-label=#{waitlists.sectionAriaLabel(${section.sisSectionId})}"
+             th:text="#{waitlists.sectionLabel(${section.sisSectionId})}"></label>
     </li>
   </ul>
-  <a id="backButton" th:href="@{/launch}" class="btn btn-primary">Back</a>
-  <button id="formSubmitButton" type="submit" class="btn btn-primary ml-2">Continue</button>
+  <a id="backButton" th:href="@{/launch}" class="btn btn-primary" th:text="#{waitlists.backButton}">Back</a>
+  <button id="formSubmitButton" type="submit" class="btn btn-primary ml-2" th:text="#{waitlists.continueButton}">Continue</button>
 </form>
 </body>
 </html>

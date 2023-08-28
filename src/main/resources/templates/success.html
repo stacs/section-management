@@ -8,50 +8,42 @@
 
     <body>
         <div th:replace="fragments/header :: header"></div>
-        <h2>The following changes were made to your course:</h2>
+        <h2 th:text="#{success.header}">The following changes were made to your course:</h2>
         <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
-            <h3>Sections added:</h3>
+            <h3 th:text="#{success.addSections.header}">Sections added:</h3>
             <ul>
-                <li th:each="section : ${sectionsToAdd}" th:inline="text">
-                    [[${section.sisSectionId}]]
-                </li>
+                <li th:each="section : ${sectionsToAdd}" th:text="#{success.addSections.section(${section.sisSectionId})}"></li>
             </ul>
         </div>
         <div th:unless="${#lists.isEmpty(sectionsToRemove)}">
-            <h3>Sections removed:</h3>
+            <h3 th:text="#{success.removeSections.header}">Sections removed:</h3>
             <ul>
-                <li th:each="section : ${sectionsToRemove}" th:inline="text">
-                    [[${section.sisSectionId}]]
-                </li>
+                <li th:each="section : ${sectionsToRemove}" th:text="#{success.removeSections.section(${section.sisSectionId})}"></li>
             </ul>
         </div>
         <div th:unless="${#lists.isEmpty(waitlistedSectionsToAdd)}">
-            <h3>Waitlists included:</h3>
+            <h3 th:text="#{success.addWaitlists.header}">Waitlists included:</h3>
             <ul>
-                <li th:each="section : ${waitlistedSectionsToAdd}" th:inline="text">
-                    [[${section.sisSectionId}]]
-                </li>
+                <li th:each="section : ${waitlistedSectionsToAdd}" th:text="#{success.addWaitlists.section(${section.sisSectionId})}"></li>
             </ul>
         </div>
         <div th:unless="${#lists.isEmpty(waitlistedSectionsToRemove)}">
-            <h3>Waitlists removed:</h3>
+            <h3 th:text="#{success.removeWaitlists.header}">Waitlists removed:</h3>
             <ul>
-                <li th:each="section : ${waitlistedSectionsToRemove}" th:inline="text">
-                    [[${section.sisSectionId}]]
-                </li>
+                <li th:each="section : ${waitlistedSectionsToRemove}" th:text="#{success.removeWaitlists.section(${section.sisSectionId})}"></li>
             </ul>
         </div>
         <div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors)}">
-            <h3>The following errors occurred:</h3>
+            <h3 th:text="#{success.errors.header}">The following errors occurred:</h3>
             <ul>
-                <li th:each="section : ${sectionsToAddErrors}" th:inline="text">
+                <li th:each="section : ${sectionsToAddErrors}" th:text="#{success.errors.addSection(${section.sisSectionId})}">
                     Error adding [[${section.sisSectionId}]] to the course.
                 </li>
-                <li th:each="section : ${sectionsToRemoveErrors}" th:inline="text">
+                <li th:each="section : ${sectionsToRemoveErrors}" th:text="#{success.errors.removeSection(${section.sisSectionId})}">
                     Error removing  ([[${section.sisSectionId}]]) from the course.
                 </li>
             </ul>
         </div>
-        <button th:onclick="'window.location.href = \'' + @{/launch} + '\''" class="btn btn-primary">Reload Page</button>
+        <button th:onclick="'window.location.href = \'' + @{/launch} + '\''" class="btn btn-primary" th:text="#{success.reloadPageButton}">Reload Page</button>
     </body>
 </html>
