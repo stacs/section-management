@@ -3,10 +3,10 @@ package edu.virginia.its.canvas.section.api;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import edu.virginia.its.canvas.lti.util.Constants;
 import edu.virginia.its.canvas.section.SectionManagementApplication;
 import edu.virginia.its.canvas.section.SecurityConfig;
 import edu.virginia.its.canvas.section.model.CanvasResponses;
-import edu.virginia.its.canvas.section.utils.Constants;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;

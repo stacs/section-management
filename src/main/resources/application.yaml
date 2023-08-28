@@ -31,3 +31,4 @@ ltitool:
     apiUrl: ${canvas.apiUrl}
     apiToken: ${canvas.apiToken}
     apiTimeout: 15
+  toolName: section-management
