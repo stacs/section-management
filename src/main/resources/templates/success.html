@@ -36,12 +36,8 @@
         <div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors)}">
             <h3 th:text="#{success.errors.header}">The following errors occurred:</h3>
             <ul>
-                <li th:each="section : ${sectionsToAddErrors}" th:text="#{success.errors.addSection(${section.sisSectionId})}">
-                    Error adding [[${section.sisSectionId}]] to the course.
-                </li>
-                <li th:each="section : ${sectionsToRemoveErrors}" th:text="#{success.errors.removeSection(${section.sisSectionId})}">
-                    Error removing  ([[${section.sisSectionId}]]) from the course.
-                </li>
+                <li th:each="section : ${sectionsToAddErrors}" th:text="#{success.errors.addSection(${section.sisSectionId})}"></li>
+                <li th:each="section : ${sectionsToRemoveErrors}" th:text="#{success.errors.removeSection(${section.sisSectionId})}"></li>
             </ul>
         </div>
         <button th:onclick="'window.location.href = \'' + @{/launch} + '\''" class="btn btn-primary" th:text="#{success.reloadPageButton}">Reload Page</button>
