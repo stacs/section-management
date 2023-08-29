@@ -36,7 +36,7 @@ public class SectionManagementService {
   public List<Section> getValidCourseSections(String courseId) {
     List<Section> sections =
         SectionUtils.getValidSisSections(canvasApi.getCourseSections(courseId));
-    SectionUtils.sortSectionsByCrosslistingThenName(sections);
+    sections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
     return sections;
   }
 
@@ -63,7 +63,9 @@ public class SectionManagementService {
     }
     sectionsMap.values().removeIf(List::isEmpty);
     // Sort sections within a term by name
-    sectionsMap.values().forEach(SectionUtils::sortSectionsByName);
+    sectionsMap
+        .values()
+        .forEach(sectionList -> sectionList.sort(SectionUtils.SECTION_NAME_COMPARATOR));
     return sectionsMap;
   }
 

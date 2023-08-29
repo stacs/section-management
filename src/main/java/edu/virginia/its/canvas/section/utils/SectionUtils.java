@@ -8,11 +8,11 @@ import org.springframework.util.ObjectUtils;
 
 public final class SectionUtils {
 
-  private static final Comparator<Section> ALREADY_ADDED_SECTIONS_COMPARATOR =
+  public static final Comparator<Section> ALREADY_ADDED_SECTIONS_COMPARATOR =
       Comparator.comparing(Section::isCrosslisted, Comparator.naturalOrder())
           .thenComparing(Section::name, Comparator.naturalOrder());
 
-  private static final Comparator<Section> SECTION_NAME_COMPARATOR =
+  public static final Comparator<Section> SECTION_NAME_COMPARATOR =
       Comparator.comparing(Section::name);
 
   public static List<Section> getValidSisSections(List<Section> sections) {
@@ -28,13 +28,5 @@ public final class SectionUtils {
                     (courseId.equals(section.courseId()) && section.crosslistedCourseId() == null)
                         || courseId.equals(section.crosslistedCourseId()))
             .toList());
-  }
-
-  public static void sortSectionsByName(List<Section> sections) {
-    sections.sort(SECTION_NAME_COMPARATOR);
-  }
-
-  public static void sortSectionsByCrosslistingThenName(List<Section> sections) {
-    sections.sort(ALREADY_ADDED_SECTIONS_COMPARATOR);
   }
 }
