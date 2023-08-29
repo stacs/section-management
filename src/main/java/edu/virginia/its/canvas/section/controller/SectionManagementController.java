@@ -50,6 +50,9 @@ public class SectionManagementController {
     model.addAttribute("courseName", currentCourse.name());
     model.addAttribute("courseCode", currentCourse.courseCode());
     List<Section> currentCourseSections = sectionManagementService.getValidCourseSections(courseId);
+    // Show un-removable sections first in the UI, then show the list of sections that can be
+    // removed sorting both groups by name.
+    currentCourseSections.sort(SectionUtils.ALREADY_ADDED_SECTIONS_COMPARATOR);
     model.addAttribute("currentCourseSections", currentCourseSections);
 
     List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
@@ -84,7 +87,6 @@ public class SectionManagementController {
     List<Section> currentCourseSections = sectionManagementService.getValidCourseSections(courseId);
     List<Section> potentialWaitlistSections =
         getPotentialWaitlistSections(allSections, currentCourseSections, sectionManagementForm);
-    SectionUtils.sortSectionsByName(potentialWaitlistSections);
     if (potentialWaitlistSections.isEmpty()) {
       return validate(model, sectionManagementForm);
     }
@@ -228,6 +230,7 @@ public class SectionManagementController {
   private List<Section> getSectionsToAdd(
       List<Section> allSections, SectionManagementForm sectionManagementForm) {
     return allSections.stream()
+        .sorted(SectionUtils.SECTION_NAME_COMPARATOR)
         .filter(section -> sectionManagementForm.getSectionsToAdd().contains(section.id()))
         .toList();
   }
@@ -263,7 +266,9 @@ public class SectionManagementController {
         getSectionsToRemove(currentCourseSections, sectionManagementForm);
     sectionsToRemove.forEach(sectionsToCheckSet::remove);
 
-    return new ArrayList<>(sectionsToCheckSet);
+    List<Section> potentialWaitlistSections = new ArrayList<>(sectionsToCheckSet);
+    potentialWaitlistSections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
+    return potentialWaitlistSections;
   }
 
   private List<Section> getWaitlistSectionsToAdd(
@@ -298,6 +303,7 @@ public class SectionManagementController {
         }
       }
     }
+    waitlistSectionsToAdd.sort(SectionUtils.SECTION_NAME_COMPARATOR);
     return waitlistSectionsToAdd;
   }
 
@@ -310,6 +316,7 @@ public class SectionManagementController {
     // This version is pretty simple compared to the version for added waitlists because we know we
     // will always have a DB row.
     return potentialWaitlistSections.stream()
+        .sorted(SectionUtils.SECTION_NAME_COMPARATOR)
         .filter(
             section ->
                 !sectionManagementForm.getWaitlistsToAdd().contains(section.id())

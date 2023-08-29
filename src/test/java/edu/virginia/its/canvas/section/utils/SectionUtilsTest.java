@@ -25,4 +25,42 @@ public class SectionUtilsTest {
     assertTrue(result.contains(section1));
     assertTrue(result.contains(section3));
   }
+
+  @Test
+  public void testSortSectionsByName() {
+    List<Section> sections = new ArrayList<>();
+    sections.add(new Section("4", "4", "My Section 4", "4", "4", "4", 1));
+    sections.add(new Section("1", "1", "My Section 1", "1", "1", "1", 1));
+    sections.add(new Section("2", "2", "My Section 2", "2", "2", "2", 1));
+    sections.add(new Section("5", "5", "My Section 5", "5", "5", null, 1));
+    sections.add(new Section("3", "3", "My Section 3", "3", "3", null, 1));
+
+    sections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
+
+    assertEquals(5, sections.size());
+    assertEquals("1", sections.get(0).id());
+    assertEquals("2", sections.get(1).id());
+    assertEquals("3", sections.get(2).id());
+    assertEquals("4", sections.get(3).id());
+    assertEquals("5", sections.get(4).id());
+  }
+
+  @Test
+  public void testSortSectionsByCrosslistingThenName() {
+    List<Section> sections = new ArrayList<>();
+    sections.add(new Section("4", "4", "My Section 4", "4", "4", "4", 1));
+    sections.add(new Section("1", "1", "My Section 1", "1", "1", "1", 1));
+    sections.add(new Section("2", "2", "My Section 2", "2", "2", "2", 1));
+    sections.add(new Section("5", "5", "My Section 5", "5", "5", null, 1));
+    sections.add(new Section("3", "3", "My Section 3", "3", "3", null, 1));
+
+    sections.sort(SectionUtils.ALREADY_ADDED_SECTIONS_COMPARATOR);
+
+    assertEquals(5, sections.size());
+    assertEquals("3", sections.get(0).id());
+    assertEquals("5", sections.get(1).id());
+    assertEquals("1", sections.get(2).id());
+    assertEquals("2", sections.get(3).id());
+    assertEquals("4", sections.get(4).id());
+  }
 }
