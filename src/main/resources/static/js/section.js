@@ -33,3 +33,40 @@ function selectAllSectionsForTerm(element) {
     input.checked = checked;
   });
 }
+
+function disableButtons() {
+  // Anchors don't support the disabled attribute, so we need to add a disabled class
+  var anchorList = document.querySelectorAll("a");
+  anchorList.forEach(anchor => {
+    anchor.classList.add("disabled");
+    anchor.setAttribute("aria-disabled", "true");
+  });
+  var buttonList = document.querySelectorAll("button");
+  buttonList.forEach(button => {
+    button.disabled = true;
+  });
+}
+
+function showLoadingIcon(element) {
+  const spinnerSpan = document.createElement('span');
+  spinnerSpan.setAttribute("class", "spinner-border spinner-border-sm");
+  spinnerSpan.setAttribute("role", "status");
+  spinnerSpan.setAttribute("aria-hidden", "true");
+  element.appendChild(spinnerSpan);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Anchor clicks don't fire a submit event, so we handle those manually
+  var anchorList = document.querySelectorAll("a");
+  anchorList.forEach(anchor => {
+    anchor.onclick = function() {
+      showLoadingIcon(anchor);
+      disableButtons();
+    };
+  });
+  var form = document.querySelector("form");
+  form.addEventListener("submit", (event) => {
+    showLoadingIcon(event.submitter);
+    disableButtons();
+  });
+});
