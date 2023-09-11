@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import edu.virginia.its.canvas.section.SectionManagementApplication;
 import edu.virginia.its.canvas.section.SecurityConfig;
 import edu.virginia.its.canvas.section.api.CanvasApi;
-import edu.virginia.its.canvas.section.model.CanvasResponses.Section;
+import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -20,17 +20,17 @@ public class SectionManagementServiceTest {
 
   @Test
   public void testGetValidCourseSections() {
-    List<Section> sections = new ArrayList<>();
-    sections.add(new Section("4", "4", "My Section 4", "4", "4", "4", 1));
-    sections.add(new Section("1", "1", "My Section 1", "1", "1", "1", 1));
-    sections.add(new Section("2", "2", "My Section 2", null, "2", "2", 1));
-    sections.add(new Section("5", "5", "My Section 5", "5", "5", null, 1));
-    sections.add(new Section("3", "3", "My Section 3", null, "3", null, 1));
+    List<CanvasSection> canvasSections = new ArrayList<>();
+    canvasSections.add(new CanvasSection("4", "4", "My Section 4", "4", "4", "4", 1));
+    canvasSections.add(new CanvasSection("1", "1", "My Section 1", "1", "1", "1", 1));
+    canvasSections.add(new CanvasSection("2", "2", "My Section 2", null, "2", "2", 1));
+    canvasSections.add(new CanvasSection("5", "5", "My Section 5", "5", "5", null, 1));
+    canvasSections.add(new CanvasSection("3", "3", "My Section 3", null, "3", null, 1));
     CanvasApi api = mock(CanvasApi.class);
-    when(api.getCourseSections("123")).thenReturn(sections);
+    when(api.getCourseSections("123")).thenReturn(canvasSections);
     SectionManagementService service = new SectionManagementService(api);
 
-    List<Section> result = service.getValidCourseSections("123");
+    List<CanvasSection> result = service.getValidCourseSections("123");
     assertEquals(3, result.size());
     assertEquals("1", result.get(0).id());
     assertEquals("4", result.get(1).id());

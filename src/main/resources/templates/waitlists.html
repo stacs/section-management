@@ -19,7 +19,7 @@
   <ul>
     <li class="form-check" th:each="section : ${potentialWaitlistSections}">
       <input th:id="'waitlist-section-input-' + ${section.id}" type="checkbox"
-             th:field="*{waitlistsToAdd}" th:value="${section.id}" class="form-check-input"/>
+             th:field="*{waitlistsToAdd}" th:value="${section.sisSectionId}" class="form-check-input"/>
       <label th:for="'waitlist-section-input-' + ${section.id}" class="form-check-label"
              th:attr="aria-label=#{waitlists.sectionAriaLabel(${section.sisSectionId})}"
              th:text="#{waitlists.sectionLabel(${section.sisSectionId})}"></label>

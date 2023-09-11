@@ -14,7 +14,7 @@ public final class CanvasResponses {
 
   public record Term(String id, String name, @JsonProperty("sis_term_id") String sisTermId) {}
 
-  public record Section(
+  public record CanvasSection(
       String id,
       @JsonProperty("course_id") String courseId,
       String name,
@@ -22,9 +22,6 @@ public final class CanvasResponses {
       @JsonProperty("sis_course_id") String sisCourseId,
       @JsonProperty("nonxlist_course_id") String crosslistedCourseId,
       @JsonProperty("total_students") int totalStudents) {
-    public boolean isWaitlist() {
-      return sisSectionId != null && sisSectionId.endsWith("_WL");
-    }
 
     public boolean isCrosslisted() {
       return !ObjectUtils.isEmpty(crosslistedCourseId);

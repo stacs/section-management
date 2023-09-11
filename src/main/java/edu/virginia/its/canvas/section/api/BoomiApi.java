@@ -2,11 +2,15 @@ package edu.virginia.its.canvas.section.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import edu.virginia.its.canvas.section.model.UvaSection;
-import edu.virginia.its.canvas.section.model.WaitlistedSection;
+import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlist;
+import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlistStatus;
+import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,22 +47,43 @@ public class BoomiApi {
     objectMapper.configOverride(Boolean.class).setFormat(JsonFormat.Value.forShape(Shape.STRING));
   }
 
-  public boolean updateWaitlistsForSections(List<WaitlistedSection> waitlistedSections) {
-    List<UvaSection> uvaSectionWaitlists = new ArrayList<>();
-    for (WaitlistedSection waitlistedSection : waitlistedSections) {
-      UvaSection section =
-          new UvaSection(waitlistedSection.getSisSectionId(), waitlistedSection.isWaitlisted());
-      // Make sure the section given is valid vs something like one of our test sections which don't
-      // use valid names (1226_CIS_1171-1_UNKX_261170101)
-      if (section.getValid()) {
-        uvaSectionWaitlists.add(section);
-      }
-    }
-    if (!uvaSectionWaitlists.isEmpty()) {
+  public List<SisSection> getWaitlistStatusForSections(List<CanvasWaitlistStatus> sections) {
+    if (!sections.isEmpty()) {
       ObjectNode body = objectMapper.createObjectNode();
-      ArrayNode waitlists = objectMapper.valueToTree(uvaSectionWaitlists);
+      ArrayNode waitlists = objectMapper.valueToTree(sections);
+      body.set("classes", waitlists);
+      log.info("status body: {}", body);
+      return boomiApi
+          .post()
+          .uri("ws/rest/uvacanvas/canvasWaitlistStatus")
+          .header("X-API-KEY", boomiApiToken)
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(body)
+          .retrieve()
+          .bodyToMono(JsonNode.class)
+          .map(s -> s.path("waitlists"))
+          .map(
+              s -> {
+                try {
+                  return new ObjectMapper()
+                      .readValue(s.traverse(), new TypeReference<List<SisSection>>() {});
+                } catch (IOException e) {
+                  log.error("Error while deserializing waitlist sections json", e);
+                  return new ArrayList<SisSection>();
+                }
+              })
+          .block(requestTimeout);
+    } else {
+      return List.of();
+    }
+  }
+
+  public boolean updateWaitlistsForSections(List<CanvasWaitlist> sections) {
+    if (!sections.isEmpty()) {
+      ObjectNode body = objectMapper.createObjectNode();
+      ArrayNode waitlists = objectMapper.valueToTree(sections);
       body.set("waitlists", waitlists);
-      log.info("Sending the following body request to Boomi: {}", body);
+      log.info("change body: {}", body);
       ClientResponse response =
           boomiApi
               .post()
@@ -81,12 +106,9 @@ public class BoomiApi {
         log.error(
             "Received no response from server when attempting to set SIS waitlisted sections");
       }
-      return false;
     } else {
-      log.warn(
-          "Could not find any valid sections to send to Boomi for waitlist updates: {}",
-          waitlistedSections);
-      return false;
+      log.warn("Waitlist sections list to send to SIS was empty");
     }
+    return false;
   }
 }

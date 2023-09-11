@@ -1,9 +1,9 @@
 package edu.virginia.its.canvas.section.api;
 
 import edu.virginia.its.canvas.lti.util.Constants;
+import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Enrollment;
-import edu.virginia.its.canvas.section.model.CanvasResponses.Section;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -78,19 +78,19 @@ public class CanvasApi {
     return results;
   }
 
-  public List<Section> getCourseSections(String courseId) {
+  public List<CanvasSection> getCourseSections(String courseId) {
     String uri =
         UriComponentsBuilder.fromPath("/courses/{id}/sections")
             .queryParam("per_page", "100")
             .queryParam("include[]", "total_students")
             .buildAndExpand(courseId)
             .toString();
-    List<Section> results = new ArrayList<>();
-    getPagedResponses(uri, Section[].class, results);
+    List<CanvasSection> results = new ArrayList<>();
+    getPagedResponses(uri, CanvasSection[].class, results);
     return results;
   }
 
-  public Section crosslistSection(String sectionId, String newCourseId) {
+  public CanvasSection crosslistSection(String sectionId, String newCourseId) {
     return canvasApi
         .post()
         .uri(
@@ -110,11 +110,11 @@ public class CanvasApi {
                   response.statusCode());
               return Mono.error(new Exception("Could not crosslist section"));
             })
-        .bodyToMono(Section.class)
+        .bodyToMono(CanvasSection.class)
         .block(requestTimeout);
   }
 
-  public Section deCrosslistSection(String sectionId) {
+  public CanvasSection deCrosslistSection(String sectionId) {
     return canvasApi
         .delete()
         .uri(uriBuilder -> uriBuilder.path("/sections/{sectionId}/crosslist").build(sectionId))
@@ -129,7 +129,7 @@ public class CanvasApi {
                   response.statusCode());
               return Mono.error(new Exception("Could not de-crosslist section"));
             })
-        .bodyToMono(Section.class)
+        .bodyToMono(CanvasSection.class)
         .block(requestTimeout);
   }
 
