@@ -1,9 +1,9 @@
 package edu.virginia.its.canvas.section.service;
 
 import edu.virginia.its.canvas.section.api.CanvasApi;
+import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Enrollment;
-import edu.virginia.its.canvas.section.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Term;
 import edu.virginia.its.canvas.section.utils.SectionUtils;
 import java.util.ArrayList;
@@ -33,33 +33,33 @@ public class SectionManagementService {
     return canvasApi.getUserCourses(computingId);
   }
 
-  public List<Section> getValidCourseSections(String courseId) {
-    List<Section> sections =
+  public List<CanvasSection> getValidCourseSections(String courseId) {
+    List<CanvasSection> canvasSections =
         SectionUtils.getValidSisSections(canvasApi.getCourseSections(courseId));
-    sections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
-    return sections;
+    canvasSections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
+    return canvasSections;
   }
 
-  public Map<Term, List<Section>> getAllUserSectionsGroupedByTerm(List<Course> userCourses) {
+  public Map<Term, List<CanvasSection>> getAllUserSectionsGroupedByTerm(List<Course> userCourses) {
     // Sort terms by most recent
-    Map<Term, List<Section>> sectionsMap =
+    Map<Term, List<CanvasSection>> sectionsMap =
         new TreeMap<>(Comparator.comparing(Term::sisTermId, Comparator.reverseOrder()));
-    List<Section> allSections = getAllUserSections(userCourses);
-    for (Section section : allSections) {
+    List<CanvasSection> allCanvasSections = getAllUserSections(userCourses);
+    for (CanvasSection canvasSection : allCanvasSections) {
       // Unfortunately the Section object that comes from Canvas does not include the Term, so we
       // need to associate
       // the Course to the Section in order to determine what the Section's Term is.
       Course course =
           userCourses.stream()
-              .filter(c -> section.courseId().equals(c.id()))
+              .filter(c -> canvasSection.courseId().equals(c.id()))
               .findFirst()
               .orElse(null);
       if (course == null) {
-        log.warn("Could not find course object for section '{}'", section);
+        log.warn("Could not find course object for section '{}'", canvasSection);
         continue;
       }
       sectionsMap.computeIfAbsent(course.term(), k -> new ArrayList<>());
-      sectionsMap.get(course.term()).add(section);
+      sectionsMap.get(course.term()).add(canvasSection);
     }
     sectionsMap.values().removeIf(List::isEmpty);
     // Sort sections within a term by name
@@ -69,32 +69,32 @@ public class SectionManagementService {
     return sectionsMap;
   }
 
-  public List<Section> getAllUserSections(List<Course> userCourses) {
-    List<Section> allSections = new ArrayList<>();
+  public List<CanvasSection> getAllUserSections(List<Course> userCourses) {
+    List<CanvasSection> allCanvasSections = new ArrayList<>();
     // TODO: try to use spring reactive to make these calls simultaneously
     for (Course course : userCourses) {
       if (!isValidTerm(course.term())) {
         continue;
       }
-      List<Section> sections = canvasApi.getCourseSections(course.id());
-      List<Section> validSections = SectionUtils.getValidSisSections(sections);
-      allSections.addAll(validSections);
+      List<CanvasSection> canvasSections = canvasApi.getCourseSections(course.id());
+      List<CanvasSection> validCanvasSections = SectionUtils.getValidSisSections(canvasSections);
+      allCanvasSections.addAll(validCanvasSections);
     }
-    return allSections;
+    return allCanvasSections;
   }
 
-  public boolean crosslistSection(Section section, String newCourseId) {
+  public boolean crosslistSection(CanvasSection canvasSection, String newCourseId) {
     try {
-      canvasApi.crosslistSection(section.id(), newCourseId);
+      canvasApi.crosslistSection(canvasSection.id(), newCourseId);
     } catch (Exception ex) {
       return false;
     }
     return true;
   }
 
-  public boolean deCrosslistSection(Section section) {
+  public boolean deCrosslistSection(CanvasSection canvasSection) {
     try {
-      canvasApi.deCrosslistSection(section.id());
+      canvasApi.deCrosslistSection(canvasSection.id());
     } catch (Exception ex) {
       return false;
     }

@@ -2,15 +2,16 @@ package edu.virginia.its.canvas.section.controller;
 
 import edu.virginia.its.canvas.lti.util.CanvasAuthenticationToken;
 import edu.virginia.its.canvas.lti.util.Constants;
+import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
+import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
-import edu.virginia.its.canvas.section.model.CanvasResponses.Section;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Term;
 import edu.virginia.its.canvas.section.model.SectionManagementForm;
-import edu.virginia.its.canvas.section.model.WaitlistedSection;
 import edu.virginia.its.canvas.section.service.SectionManagementService;
 import edu.virginia.its.canvas.section.service.WaitlistedSectionService;
 import edu.virginia.its.canvas.section.utils.SectionUtils;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,26 +50,27 @@ public class SectionManagementController {
     Course currentCourse = sectionManagementService.getCourse(courseId);
     model.addAttribute("courseName", currentCourse.name());
     model.addAttribute("courseCode", currentCourse.courseCode());
-    List<Section> currentCourseSections = sectionManagementService.getValidCourseSections(courseId);
+    List<CanvasSection> currentCourseCanvasSections =
+        sectionManagementService.getValidCourseSections(courseId);
     // Show un-removable sections first in the UI, then show the list of sections that can be
     // removed sorting both groups by name.
-    currentCourseSections.sort(SectionUtils.ALREADY_ADDED_SECTIONS_COMPARATOR);
-    model.addAttribute("currentCourseSections", currentCourseSections);
+    currentCourseCanvasSections.sort(SectionUtils.ALREADY_ADDED_SECTIONS_COMPARATOR);
+    model.addAttribute("currentCourseSections", currentCourseCanvasSections);
 
     List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
-    Map<Term, List<Section>> sectionsMap =
+    Map<Term, List<CanvasSection>> sectionsMap =
         sectionManagementService.getAllUserSectionsGroupedByTerm(userCourses);
     // Remove any sections from the Map that are already in the course as sectionsMap is used to
     // show options to the user on what sections they can add to their course.
     // TODO: maybe move this logic into RosterManagementService?
-    sectionsMap.values().forEach(sections -> sections.removeAll(currentCourseSections));
+    sectionsMap.values().forEach(sections -> sections.removeAll(currentCourseCanvasSections));
     sectionsMap.values().removeIf(List::isEmpty);
     model.addAttribute("sectionsMap", sectionsMap);
 
     // We need to pre-populate the form with the sections already added so the checkboxes for those
     // sections will be checked
     List<String> sectionsAlreadyAdded =
-        currentCourseSections.stream().map(Section::id).collect(Collectors.toList());
+        currentCourseCanvasSections.stream().map(CanvasSection::id).collect(Collectors.toList());
     SectionManagementForm sectionManagementForm = new SectionManagementForm();
     sectionManagementForm.setSectionsToKeep(sectionsAlreadyAdded);
     model.addAttribute("sectionManagementForm", sectionManagementForm);
@@ -83,24 +85,27 @@ public class SectionManagementController {
     String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
     String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
     List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
-    List<Section> allSections = sectionManagementService.getAllUserSections(userCourses);
-    List<Section> currentCourseSections = sectionManagementService.getValidCourseSections(courseId);
-    List<Section> potentialWaitlistSections =
-        getPotentialWaitlistSections(allSections, currentCourseSections, sectionManagementForm);
-    if (potentialWaitlistSections.isEmpty()) {
+    List<CanvasSection> allCanvasSections =
+        sectionManagementService.getAllUserSections(userCourses);
+    List<CanvasSection> currentCourseCanvasSections =
+        sectionManagementService.getValidCourseSections(courseId);
+    List<CanvasSection> potentialWaitlistCanvasSections =
+        getPotentialWaitlistSections(
+            allCanvasSections, currentCourseCanvasSections, sectionManagementForm);
+    if (potentialWaitlistCanvasSections.isEmpty()) {
       return validate(model, sectionManagementForm);
     }
-    model.addAttribute("potentialWaitlistSections", potentialWaitlistSections);
+    model.addAttribute("potentialWaitlistSections", potentialWaitlistCanvasSections);
 
-    // TODO: move query of waitlisted sections from our DB into Boomi?
-    List<WaitlistedSection> waitlistedSectionList =
-        waitlistedSectionService.findAllSections(potentialWaitlistSections);
+    List<SisSection> waitlistedSectionList =
+        waitlistedSectionService.findAllSections(potentialWaitlistCanvasSections);
     List<String> waitlistedSectionsAlreadyEnabled =
         waitlistedSectionList.stream()
-            .filter(WaitlistedSection::isWaitlisted)
-            .map(w -> Long.toString(w.getCanvasId()))
+            .filter(SisSection::waitlisted)
+            .map(SisSection::getSisSectionId)
             .toList();
     sectionManagementForm.setWaitlistsToAdd(waitlistedSectionsAlreadyEnabled);
+    // TODO: what should happen when Boomi isn't reachable?
     return "waitlists";
   }
 
@@ -109,33 +114,36 @@ public class SectionManagementController {
     CanvasAuthenticationToken token = CanvasAuthenticationToken.getToken();
     String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
     String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
-    List<Section> currentCourseSections = sectionManagementService.getValidCourseSections(courseId);
+    List<CanvasSection> currentCourseCanvasSections =
+        sectionManagementService.getValidCourseSections(courseId);
     // Don't try to remove sections that have a null crosslisted course id (meaning that they were
     // originally created in the current course).
-    List<Section> sectionsToRemove =
-        getSectionsToRemove(currentCourseSections, sectionManagementForm);
+    List<CanvasSection> sectionsToRemove =
+        getSectionsToRemove(currentCourseCanvasSections, sectionManagementForm);
     model.addAttribute("sectionsToRemove", sectionsToRemove);
 
     List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
-    List<Section> allSections = sectionManagementService.getAllUserSections(userCourses);
-    List<Section> sectionsToAdd = getSectionsToAdd(allSections, sectionManagementForm);
+    List<CanvasSection> allCanvasSections =
+        sectionManagementService.getAllUserSections(userCourses);
+    List<CanvasSection> sectionsToAdd = getSectionsToAdd(allCanvasSections, sectionManagementForm);
     model.addAttribute("sectionsToAdd", sectionsToAdd);
 
     List<Course> coursesToRemoveUserFrom =
-        getCoursesToRemoveUserFrom(userCourses, allSections, sectionManagementForm);
+        getCoursesToRemoveUserFrom(userCourses, allCanvasSections, sectionManagementForm);
     model.addAttribute("coursesToRemoveUserFrom", coursesToRemoveUserFrom);
 
-    List<Section> potentialWaitlistSections =
-        getPotentialWaitlistSections(allSections, currentCourseSections, sectionManagementForm);
-    List<WaitlistedSection> waitlistedSectionList =
-        waitlistedSectionService.findAllSections(potentialWaitlistSections);
-    List<Section> waitlistedSectionsToAdd =
-        getWaitlistSectionsToAdd(
-            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
+    List<CanvasSection> potentialWaitlistCanvasSections =
+        getPotentialWaitlistSections(
+            allCanvasSections, currentCourseCanvasSections, sectionManagementForm);
+    List<SisSection> waitlistedSectionList =
+        waitlistedSectionService.findAllSections(potentialWaitlistCanvasSections);
+
+    List<SisSection> waitlistedSectionsToAdd =
+        getWaitlistSectionsToAdd(waitlistedSectionList, sectionManagementForm);
     model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
-    List<Section> waitlistedSectionsToRemove =
-        getWaitlistSectionsToRemove(
-            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
+
+    List<SisSection> waitlistedSectionsToRemove =
+        getWaitlistSectionsToRemove(waitlistedSectionList, sectionManagementForm);
     model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
     return "validate";
   }
@@ -146,58 +154,61 @@ public class SectionManagementController {
     CanvasAuthenticationToken token = CanvasAuthenticationToken.getToken();
     String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
     String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
-    List<Section> currentCourseSections = sectionManagementService.getValidCourseSections(courseId);
+    List<CanvasSection> currentCourseCanvasSections =
+        sectionManagementService.getValidCourseSections(courseId);
     // Don't try to remove sections that have a null crosslisted course id (meaning that they were
     // originally created in the current course).
-    List<Section> sectionsToRemove =
-        getSectionsToRemove(currentCourseSections, sectionManagementForm);
-    List<Section> sectionsToRemoveErrors = new ArrayList<>();
-    for (Section sectionToRemove : sectionsToRemove) {
+    List<CanvasSection> sectionsToRemove =
+        getSectionsToRemove(currentCourseCanvasSections, sectionManagementForm);
+    List<CanvasSection> sectionsToRemoveErrors = new ArrayList<>();
+    for (CanvasSection canvasSectionToRemove : sectionsToRemove) {
       log.info(
           "User '{}' is decrosslisting section '{}' back to course '{}'",
           computingId,
-          sectionToRemove,
-          sectionToRemove.crosslistedCourseId());
-      boolean success = sectionManagementService.deCrosslistSection(sectionToRemove);
+          canvasSectionToRemove,
+          canvasSectionToRemove.crosslistedCourseId());
+      boolean success = sectionManagementService.deCrosslistSection(canvasSectionToRemove);
       if (!success) {
-        sectionsToRemoveErrors.add(sectionToRemove);
+        sectionsToRemoveErrors.add(canvasSectionToRemove);
       }
     }
     model.addAttribute("sectionsToRemove", sectionsToRemove);
     model.addAttribute("sectionsToRemoveErrors", sectionsToRemoveErrors);
 
     List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
-    List<Section> allSections = sectionManagementService.getAllUserSections(userCourses);
-    List<Section> sectionsToAdd = getSectionsToAdd(allSections, sectionManagementForm);
-    List<Section> sectionsToAddErrors = new ArrayList<>();
-    for (Section sectionToAdd : sectionsToAdd) {
+    List<CanvasSection> allCanvasSections =
+        sectionManagementService.getAllUserSections(userCourses);
+    List<CanvasSection> sectionsToAdd = getSectionsToAdd(allCanvasSections, sectionManagementForm);
+    List<CanvasSection> sectionsToAddErrors = new ArrayList<>();
+    for (CanvasSection canvasSectionToAdd : sectionsToAdd) {
       log.info(
           "User '{}' is crosslisting section '{}' to course '{}'",
           computingId,
-          sectionToAdd,
+          canvasSectionToAdd,
           courseId);
-      boolean success = sectionManagementService.crosslistSection(sectionToAdd, courseId);
+      boolean success = sectionManagementService.crosslistSection(canvasSectionToAdd, courseId);
       if (!success) {
-        sectionsToAddErrors.add(sectionToAdd);
+        sectionsToAddErrors.add(canvasSectionToAdd);
       }
     }
     model.addAttribute("sectionsToAdd", sectionsToAdd);
     model.addAttribute("sectionsToAddErrors", sectionsToAddErrors);
 
-    List<Section> potentialWaitlistSections =
-        getPotentialWaitlistSections(allSections, currentCourseSections, sectionManagementForm);
-    List<WaitlistedSection> waitlistedSectionList =
-        waitlistedSectionService.findAllSections(potentialWaitlistSections);
-    List<Section> waitlistedSectionsToAdd =
-        getWaitlistSectionsToAdd(
-            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
+    List<CanvasSection> potentialWaitlistCanvasSections =
+        getPotentialWaitlistSections(
+            allCanvasSections, currentCourseCanvasSections, sectionManagementForm);
+    List<SisSection> waitlistedSectionList =
+        waitlistedSectionService.findAllSections(potentialWaitlistCanvasSections);
+
+    List<SisSection> waitlistedSectionsToAdd =
+        getWaitlistSectionsToAdd(waitlistedSectionList, sectionManagementForm);
     if (!waitlistedSectionsToAdd.isEmpty()) {
       waitlistedSectionService.addWaitlistSections(computingId, waitlistedSectionsToAdd);
       model.addAttribute("waitlistedSectionsToAdd", waitlistedSectionsToAdd);
     }
-    List<Section> waitlistedSectionsToRemove =
-        getWaitlistSectionsToRemove(
-            potentialWaitlistSections, waitlistedSectionList, sectionManagementForm);
+
+    List<SisSection> waitlistedSectionsToRemove =
+        getWaitlistSectionsToRemove(waitlistedSectionList, sectionManagementForm);
     if (!waitlistedSectionsToRemove.isEmpty()) {
       waitlistedSectionService.removeWaitlistSections(computingId, waitlistedSectionsToRemove);
       model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
@@ -206,10 +217,10 @@ public class SectionManagementController {
     return "success";
   }
 
-  private Set<Section> getSectionsBeingAddedOrKept(
-      List<Section> allSections, SectionManagementForm sectionManagementForm) {
+  private Set<CanvasSection> getSectionsBeingAddedOrKept(
+      List<CanvasSection> allCanvasSections, SectionManagementForm sectionManagementForm) {
     return new HashSet<>(
-        allSections.stream()
+        allCanvasSections.stream()
             .filter(
                 section ->
                     sectionManagementForm.getSectionsToAdd().contains(section.id())
@@ -217,9 +228,10 @@ public class SectionManagementController {
             .toList());
   }
 
-  private List<Section> getSectionsToRemove(
-      List<Section> currentCourseSections, SectionManagementForm sectionManagementForm) {
-    return currentCourseSections.stream()
+  private List<CanvasSection> getSectionsToRemove(
+      List<CanvasSection> currentCourseCanvasSections,
+      SectionManagementForm sectionManagementForm) {
+    return currentCourseCanvasSections.stream()
         .filter(
             section ->
                 section.crosslistedCourseId() != null
@@ -227,9 +239,9 @@ public class SectionManagementController {
         .toList();
   }
 
-  private List<Section> getSectionsToAdd(
-      List<Section> allSections, SectionManagementForm sectionManagementForm) {
-    return allSections.stream()
+  private List<CanvasSection> getSectionsToAdd(
+      List<CanvasSection> allCanvasSections, SectionManagementForm sectionManagementForm) {
+    return allCanvasSections.stream()
         .sorted(SectionUtils.SECTION_NAME_COMPARATOR)
         .filter(section -> sectionManagementForm.getSectionsToAdd().contains(section.id()))
         .toList();
@@ -237,9 +249,9 @@ public class SectionManagementController {
 
   private List<Course> getCoursesToRemoveUserFrom(
       List<Course> userCourses,
-      List<Section> allSections,
+      List<CanvasSection> allCanvasSections,
       SectionManagementForm sectionManagementForm) {
-    List<Section> sectionsToAdd = getSectionsToAdd(allSections, sectionManagementForm);
+    List<CanvasSection> sectionsToAdd = getSectionsToAdd(allCanvasSections, sectionManagementForm);
     return userCourses.stream()
         .filter(
             course ->
@@ -247,84 +259,53 @@ public class SectionManagementController {
         .toList();
   }
 
-  private List<Section> getPotentialWaitlistSections(
-      List<Section> allSections,
-      List<Section> currentCourseSections,
+  private List<CanvasSection> getPotentialWaitlistSections(
+      List<CanvasSection> allCanvasSections,
+      List<CanvasSection> currentCourseCanvasSections,
       SectionManagementForm sectionManagementForm) {
-    Set<Section> sectionsToCheckSet =
-        getSectionsBeingAddedOrKept(allSections, sectionManagementForm);
+    Set<CanvasSection> sectionsToCheckSet =
+        getSectionsBeingAddedOrKept(allCanvasSections, sectionManagementForm);
 
     // Have to manually add the current course sections as we don't pass that in the
     // SectionsToKeep object as we don't let the user remove the original SIS sections from a
     // course.
     // The reason SectionsToCheck starts as a Set is so we don't double show Sections that were
     // already in the course and are being kept in.
-    sectionsToCheckSet.addAll(currentCourseSections);
+    sectionsToCheckSet.addAll(currentCourseCanvasSections);
 
     // Don't show sections that we are in the process of removing
-    List<Section> sectionsToRemove =
-        getSectionsToRemove(currentCourseSections, sectionManagementForm);
+    List<CanvasSection> sectionsToRemove =
+        getSectionsToRemove(currentCourseCanvasSections, sectionManagementForm);
     sectionsToRemove.forEach(sectionsToCheckSet::remove);
 
-    List<Section> potentialWaitlistSections = new ArrayList<>(sectionsToCheckSet);
-    potentialWaitlistSections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
-    return potentialWaitlistSections;
+    List<CanvasSection> potentialWaitlistCanvasSections = new ArrayList<>(sectionsToCheckSet);
+    potentialWaitlistCanvasSections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
+    return potentialWaitlistCanvasSections;
   }
 
-  private List<Section> getWaitlistSectionsToAdd(
-      List<Section> potentialWaitlistSections,
-      List<WaitlistedSection> waitlistedSectionList,
-      SectionManagementForm sectionManagementForm) {
-    // We only want to return the Sections that are actually changing, so we compare against the
-    // WaitlistedSection list from the DB to see if any changes were actually made.
-    List<Section> waitlistSectionsToAdd = new ArrayList<>();
-    List<Section> potentialWaitlistSectionsToAdd =
-        potentialWaitlistSections.stream()
-            .filter(section -> sectionManagementForm.getWaitlistsToAdd().contains(section.id()))
-            .toList();
-    // Couldn't figure out a way to do this via a single stream call since a null DB row (no
-    // matching WaitlistSection) means waitlists are
-    // turned off for that section, but the DB could also have a row for a section that has no
-    // waitlists (when setting a waitlist from enabled
-    // to disabled we set the waitlist flag for the row to false vs removing the row).
-    // TODO: Maybe remove rows when turning off waitlists?  Will be a moot point if/when we ever
-    // move the read request for waitlist sections to Boomi.
-    for (Section section : potentialWaitlistSectionsToAdd) {
-      WaitlistedSection waitlistedSection =
-          waitlistedSectionList.stream()
-              .filter(waitlist -> waitlist.getSisSectionId().equals(section.sisSectionId()))
-              .findFirst()
-              .orElse(null);
-      if (waitlistedSection == null) {
-        waitlistSectionsToAdd.add(section);
-      } else {
-        if (!waitlistedSection.isWaitlisted()) {
-          waitlistSectionsToAdd.add(section);
-        }
-      }
-    }
-    waitlistSectionsToAdd.sort(SectionUtils.SECTION_NAME_COMPARATOR);
-    return waitlistSectionsToAdd;
-  }
-
-  private List<Section> getWaitlistSectionsToRemove(
-      List<Section> potentialWaitlistSections,
-      List<WaitlistedSection> waitlistedSectionList,
-      SectionManagementForm sectionManagementForm) {
-    // We only want to return the Sections that are actually changing, so we compare against the
-    // WaitlistedSection list from the DB to see if any changes were actually made.
-    // This version is pretty simple compared to the version for added waitlists because we know we
-    // will always have a DB row.
-    return potentialWaitlistSections.stream()
-        .sorted(SectionUtils.SECTION_NAME_COMPARATOR)
+  private List<SisSection> getWaitlistSectionsToAdd(
+      List<SisSection> sections, SectionManagementForm sectionManagementForm) {
+    return sections.stream()
+        .sorted(Comparator.comparing(SisSection::getSisSectionId))
         .filter(
             section ->
-                !sectionManagementForm.getWaitlistsToAdd().contains(section.id())
-                    && waitlistedSectionList.stream()
-                        .anyMatch(
-                            waitlist ->
-                                waitlist.getSisSectionId().equals(section.sisSectionId())
-                                    && waitlist.isWaitlisted()))
+                !section.waitlisted()
+                    && sectionManagementForm
+                        .getWaitlistsToAdd()
+                        .contains(section.getSisSectionId()))
+        .toList();
+  }
+
+  private List<SisSection> getWaitlistSectionsToRemove(
+      List<SisSection> sections, SectionManagementForm sectionManagementForm) {
+    return sections.stream()
+        .sorted(Comparator.comparing(SisSection::getSisSectionId))
+        .filter(
+            section ->
+                section.waitlisted()
+                    && !sectionManagementForm
+                        .getWaitlistsToAdd()
+                        .contains(section.getSisSectionId()))
         .toList();
   }
 }
