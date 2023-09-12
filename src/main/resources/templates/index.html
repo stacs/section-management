@@ -25,8 +25,12 @@
                         <input th:id="'section-input-' + ${section.id}" type="checkbox"
                                th:field="*{sectionsToKeep}" th:value="${section.id}"
                                th:disabled="${section.crosslistedCourseId == null}" class="form-check-input"/>
-                        <label th:for="'section-input-' + ${section.id}" class="form-check-label"
-                               th:text="#{index.addedSectionLabel(${section.sisSectionId}, ${section.totalStudents})}">Section label</label>
+                        <label th:if="${waitlistSectionsMap.containsKey(section.sisSectionId)}"
+                               th:for="'section-input-' + ${section.id}" class="form-check-label"
+                               th:text="#{index.addedSectionLabelWaitlistEnabled(${section.sisSectionId}, ${section.totalStudents})}">Section label with waitlist enabled</label>
+                        <label th:unless="${waitlistSectionsMap.containsKey(section.sisSectionId)}"
+                               th:for="'section-input-' + ${section.id}" class="form-check-label"
+                               th:text="#{index.addedSectionLabel(${section.sisSectionId}, ${section.totalStudents})}">Section label with waitlist disabled</label>
                     </li>
                 </ul>
             </div>

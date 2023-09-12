@@ -57,6 +57,18 @@ public class SectionManagementController {
     currentCourseCanvasSections.sort(SectionUtils.ALREADY_ADDED_SECTIONS_COMPARATOR);
     model.addAttribute("currentCourseSections", currentCourseCanvasSections);
 
+    // TODO: Should the currentCourseSections attribute be a list of SisSections vs CanvasSections
+    // so we only have one data structure to manage?
+    // I'm using CanvasSection for now so I could still show this page even if Boomi/SisSections are
+    // down.
+    List<SisSection> sectionsWithWaitlistStatus =
+        waitlistedSectionService.getWaitlistStatusForSections(currentCourseCanvasSections);
+    Map<String, SisSection> waitlistSectionsMap =
+        sectionsWithWaitlistStatus.stream()
+            .filter(SisSection::waitlisted)
+            .collect(Collectors.toMap(SisSection::getSisSectionId, sisSection -> sisSection));
+    model.addAttribute("waitlistSectionsMap", waitlistSectionsMap);
+
     List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
     Map<Term, List<CanvasSection>> sectionsMap =
         sectionManagementService.getAllUserSectionsGroupedByTerm(userCourses);
@@ -98,7 +110,7 @@ public class SectionManagementController {
     model.addAttribute("potentialWaitlistSections", potentialWaitlistCanvasSections);
 
     List<SisSection> waitlistedSectionList =
-        waitlistedSectionService.findAllSections(potentialWaitlistCanvasSections);
+        waitlistedSectionService.getWaitlistStatusForSections(potentialWaitlistCanvasSections);
     List<String> waitlistedSectionsAlreadyEnabled =
         waitlistedSectionList.stream()
             .filter(SisSection::waitlisted)
@@ -136,7 +148,7 @@ public class SectionManagementController {
         getPotentialWaitlistSections(
             allCanvasSections, currentCourseCanvasSections, sectionManagementForm);
     List<SisSection> waitlistedSectionList =
-        waitlistedSectionService.findAllSections(potentialWaitlistCanvasSections);
+        waitlistedSectionService.getWaitlistStatusForSections(potentialWaitlistCanvasSections);
 
     List<SisSection> waitlistedSectionsToAdd =
         getWaitlistSectionsToAdd(waitlistedSectionList, sectionManagementForm);
@@ -198,7 +210,7 @@ public class SectionManagementController {
         getPotentialWaitlistSections(
             allCanvasSections, currentCourseCanvasSections, sectionManagementForm);
     List<SisSection> waitlistedSectionList =
-        waitlistedSectionService.findAllSections(potentialWaitlistCanvasSections);
+        waitlistedSectionService.getWaitlistStatusForSections(potentialWaitlistCanvasSections);
 
     List<SisSection> waitlistedSectionsToAdd =
         getWaitlistSectionsToAdd(waitlistedSectionList, sectionManagementForm);

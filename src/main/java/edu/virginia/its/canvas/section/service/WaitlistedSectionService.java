@@ -54,7 +54,7 @@ public class WaitlistedSectionService {
     }
   }
 
-  public List<SisSection> findAllSections(List<CanvasSection> canvasSections) {
+  public List<SisSection> getWaitlistStatusForSections(List<CanvasSection> canvasSections) {
     List<CanvasWaitlistStatus> sectionsStatusList = new ArrayList<>();
     for (CanvasSection canvasSection : canvasSections) {
       CanvasWaitlistStatus sectionStatus =

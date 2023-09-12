@@ -52,7 +52,6 @@ public class BoomiApi {
       ObjectNode body = objectMapper.createObjectNode();
       ArrayNode waitlists = objectMapper.valueToTree(sections);
       body.set("classes", waitlists);
-      log.info("status body: {}", body);
       return boomiApi
           .post()
           .uri("ws/rest/uvacanvas/canvasWaitlistStatus")
@@ -83,7 +82,6 @@ public class BoomiApi {
       ObjectNode body = objectMapper.createObjectNode();
       ArrayNode waitlists = objectMapper.valueToTree(sections);
       body.set("waitlists", waitlists);
-      log.info("change body: {}", body);
       ClientResponse response =
           boomiApi
               .post()
