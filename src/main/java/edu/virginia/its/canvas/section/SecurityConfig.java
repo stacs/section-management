@@ -24,7 +24,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/config.json",
             "/.well-known/jwks.json",
             "/lti/login",
-            "/icons/**")
+            "/icons/**",
+            "/error")
         .permitAll()
         .antMatchers("/**")
         .hasRole("INSTRUCTOR");
