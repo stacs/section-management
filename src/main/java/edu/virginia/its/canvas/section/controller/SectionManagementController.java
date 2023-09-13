@@ -107,12 +107,12 @@ public class SectionManagementController {
     if (potentialWaitlistCanvasSections.isEmpty()) {
       return validate(model, sectionManagementForm);
     }
-    model.addAttribute("potentialWaitlistSections", potentialWaitlistCanvasSections);
 
-    List<SisSection> waitlistedSectionList =
+    List<SisSection> waitlistStatusForSections =
         waitlistedSectionService.getWaitlistStatusForSections(potentialWaitlistCanvasSections);
+    model.addAttribute("waitlistStatusForSections", waitlistStatusForSections);
     List<String> waitlistedSectionsAlreadyEnabled =
-        waitlistedSectionList.stream()
+        waitlistStatusForSections.stream()
             .filter(SisSection::waitlisted)
             .map(SisSection::getSisSectionId)
             .toList();
