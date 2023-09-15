@@ -21,8 +21,8 @@
       <input th:id="'waitlist-section-input-' + ${section.getSisSectionId}" type="checkbox"
              th:field="*{waitlistsToAdd}" th:value="${section.getSisSectionId}" class="form-check-input"/>
       <label th:for="'waitlist-section-input-' + ${section.getSisSectionId}" class="form-check-label"
-             th:attr="aria-label=#{waitlists.sectionAriaLabel(${section.getSisSectionId}, ${section.totalStudents})}"
-             th:text="#{waitlists.sectionLabel(${section.getSisSectionId}, ${section.totalStudents})}"></label>
+             th:attr="aria-label=#{waitlists.sectionAriaLabel(${section.getSisSectionId}, ${section.numberOfWaitlistStudents})}"
+             th:text="#{waitlists.sectionLabel(${section.getSisSectionId}, ${section.numberOfWaitlistStudents})}"></label>
     </li>
   </ul>
   <a id="backButton" th:href="@{/launch}" class="btn btn-primary" th:text="#{waitlists.backButton}">Back</a>
