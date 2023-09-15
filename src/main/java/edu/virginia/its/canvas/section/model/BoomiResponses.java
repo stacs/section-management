@@ -10,8 +10,8 @@ public final class BoomiResponses {
       @JsonProperty("catalog_num") String catalogNumber,
       @JsonProperty("class_section") String classSection,
       @JsonProperty("acad_group") String academicGroup,
-      @JsonProperty("waitlist") boolean waitlisted,
-      @JsonProperty("total_students") int totalStudents) {
+      @JsonProperty("waitlist") boolean hasWaitlist,
+      @JsonProperty("total_students") int numberOfWaitlistStudents) {
     public String getSisSectionId() {
       return term + "_" + subject + "_" + catalogNumber + "-" + classSection + "_" + academicGroup;
     }

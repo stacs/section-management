@@ -65,7 +65,7 @@ public class SectionManagementController {
         waitlistedSectionService.getWaitlistStatusForSections(currentCourseCanvasSections);
     Map<String, SisSection> waitlistSectionsMap =
         sectionsWithWaitlistStatus.stream()
-            .filter(SisSection::waitlisted)
+            .filter(SisSection::hasWaitlist)
             .collect(Collectors.toMap(SisSection::getSisSectionId, sisSection -> sisSection));
     model.addAttribute("waitlistSectionsMap", waitlistSectionsMap);
 
@@ -113,7 +113,7 @@ public class SectionManagementController {
     model.addAttribute("waitlistStatusForSections", waitlistStatusForSections);
     List<String> waitlistedSectionsAlreadyEnabled =
         waitlistStatusForSections.stream()
-            .filter(SisSection::waitlisted)
+            .filter(SisSection::hasWaitlist)
             .map(SisSection::getSisSectionId)
             .toList();
     sectionManagementForm.setWaitlistsToAdd(waitlistedSectionsAlreadyEnabled);
@@ -301,7 +301,7 @@ public class SectionManagementController {
         .sorted(Comparator.comparing(SisSection::getSisSectionId))
         .filter(
             section ->
-                !section.waitlisted()
+                !section.hasWaitlist()
                     && sectionManagementForm
                         .getWaitlistsToAdd()
                         .contains(section.getSisSectionId()))
@@ -314,7 +314,7 @@ public class SectionManagementController {
         .sorted(Comparator.comparing(SisSection::getSisSectionId))
         .filter(
             section ->
-                section.waitlisted()
+                section.hasWaitlist()
                     && !sectionManagementForm
                         .getWaitlistsToAdd()
                         .contains(section.getSisSectionId()))

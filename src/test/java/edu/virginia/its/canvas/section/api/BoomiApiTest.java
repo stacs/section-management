@@ -56,7 +56,7 @@ public class BoomiApiTest {
     assertEquals("1010", sisSection.catalogNumber());
     assertEquals("100", sisSection.classSection());
     assertEquals("1238", sisSection.term());
-    assertFalse(sisSection.waitlisted());
+    assertFalse(sisSection.hasWaitlist());
     assertEquals("1238_AAS_1010-100_CGAS", sisSection.getSisSectionId());
   }
 }
