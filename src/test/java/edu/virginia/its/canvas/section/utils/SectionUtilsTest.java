@@ -13,10 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class SectionUtilsTest {
+class SectionUtilsTest {
 
   @Test
-  public void testGetSectionsCreatedInCourse() {
+  void testGetSectionsCreatedInCourse() {
     CanvasSection canvasSection1 =
         new CanvasSection("id1", "courseId1", "name1", "sisSectionId1", "sisCourseId1", null, 1);
     CanvasSection canvasSection2 =
@@ -34,7 +34,7 @@ public class SectionUtilsTest {
   }
 
   @Test
-  public void testSortSectionsByName() {
+  void testSortSectionsByName() {
     List<CanvasSection> canvasSections = new ArrayList<>();
     canvasSections.add(new CanvasSection("4", "4", "My Section 4", "4", "4", "4", 1));
     canvasSections.add(new CanvasSection("1", "1", "My Section 1", "1", "1", "1", 1));
@@ -53,7 +53,7 @@ public class SectionUtilsTest {
   }
 
   @Test
-  public void testSortSectionsByCrosslistingThenName() {
+  void testSortSectionsByCrosslistingThenName() {
     List<CanvasSection> canvasSections = new ArrayList<>();
     canvasSections.add(new CanvasSection("4", "4", "My Section 4", "4", "4", "4", 1));
     canvasSections.add(new CanvasSection("1", "1", "My Section 1", "1", "1", "1", 1));
@@ -72,7 +72,7 @@ public class SectionUtilsTest {
   }
 
   @Test
-  public void testSectionIdToCanvasWaitlistStatus() {
+  void testSectionIdToCanvasWaitlistStatus() {
     CanvasWaitlistStatus result =
         SectionUtils.sectionIdToCanvasWaitlistStatus("1228_PHYS_1050-001_CGAS");
     assertNotNull(result);
@@ -87,7 +87,7 @@ public class SectionUtilsTest {
   }
 
   @Test
-  public void testSectionIdToCanvasWaitlist() {
+  void testSectionIdToCanvasWaitlist() {
     CanvasWaitlist result = SectionUtils.sectionIdToCanvasWaitlist("1228_PHYS_1050-001_CGAS", true);
     assertNotNull(result);
     assertEquals("1228", result.term());

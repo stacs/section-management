@@ -9,14 +9,17 @@ import edu.virginia.its.canvas.section.utils.SectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class WaitlistedSectionService {
 
-  @Autowired private BoomiApi boomiApi;
+  private final BoomiApi boomiApi;
+
+  public WaitlistedSectionService(BoomiApi boomiApi) {
+    this.boomiApi = boomiApi;
+  }
 
   public void addWaitlistSections(String computingId, List<SisSection> sisSections) {
     List<CanvasWaitlist> sectionsList = new ArrayList<>();

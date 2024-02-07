@@ -10,6 +10,8 @@ import org.springframework.util.ObjectUtils;
 
 public final class SectionUtils {
 
+  private SectionUtils() {}
+
   public static final Comparator<CanvasSection> ALREADY_ADDED_SECTIONS_COMPARATOR =
       Comparator.comparing(CanvasSection::isCrosslisted, Comparator.naturalOrder())
           .thenComparing(CanvasSection::name, Comparator.naturalOrder());

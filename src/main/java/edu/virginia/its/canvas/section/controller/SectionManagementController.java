@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,9 +28,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class SectionManagementController {
 
-  @Autowired private SectionManagementService sectionManagementService;
+  private final SectionManagementService sectionManagementService;
 
-  @Autowired private WaitlistedSectionService waitlistedSectionService;
+  private final WaitlistedSectionService waitlistedSectionService;
+
+  public SectionManagementController(
+      SectionManagementService sectionManagementService,
+      WaitlistedSectionService waitlistedSectionService) {
+    this.sectionManagementService = sectionManagementService;
+    this.waitlistedSectionService = waitlistedSectionService;
+  }
 
   @GetMapping("/launch")
   public String launch() {
@@ -82,7 +88,7 @@ public class SectionManagementController {
     // We need to pre-populate the form with the sections already added so the checkboxes for those
     // sections will be checked
     List<String> sectionsAlreadyAdded =
-        currentCourseCanvasSections.stream().map(CanvasSection::id).collect(Collectors.toList());
+        currentCourseCanvasSections.stream().map(CanvasSection::id).toList();
     SectionManagementForm sectionManagementForm = new SectionManagementForm();
     sectionManagementForm.setSectionsToKeep(sectionsAlreadyAdded);
     model.addAttribute("sectionManagementForm", sectionManagementForm);

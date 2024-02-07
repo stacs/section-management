@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import org.junit.jupiter.api.Test;
 
-public class CanvasResponsesTest {
+class CanvasResponsesTest {
 
   @Test
-  public void testIsCrosslisted() {
+  void testIsCrosslisted() {
     CanvasSection canvasSection1 =
         new CanvasSection("id", "courseId", "name", "sisSectionId", "sisCourseId", null, 1);
     CanvasSection canvasSection2 =
