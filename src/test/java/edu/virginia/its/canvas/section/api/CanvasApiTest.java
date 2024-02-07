@@ -25,7 +25,7 @@ import org.springframework.util.StreamUtils;
 
 @SpringBootTest
 @ContextConfiguration(classes = {SectionManagementApplication.class, SecurityConfig.class})
-public class CanvasApiTest {
+class CanvasApiTest {
 
   public MockWebServer mockBackEnd;
 
@@ -45,7 +45,7 @@ public class CanvasApiTest {
   }
 
   @Test
-  public void testGetCourse() throws Exception {
+  void testGetCourse() throws Exception {
     String json =
         StreamUtils.copyToString(
             new ClassPathResource("canvasCourse.json").getInputStream(), Charset.defaultCharset());
@@ -63,7 +63,7 @@ public class CanvasApiTest {
   }
 
   @Test
-  public void testGetUserCourses_paging() throws Exception {
+  void testGetUserCourses_paging() throws Exception {
     String json1 =
         StreamUtils.copyToString(
             new ClassPathResource("canvasCourse1.json").getInputStream(), Charset.defaultCharset());

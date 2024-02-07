@@ -16,10 +16,10 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = {SectionManagementApplication.class, SecurityConfig.class})
-public class SectionManagementServiceTest {
+class SectionManagementServiceTest {
 
   @Test
-  public void testGetValidCourseSections() {
+  void testGetValidCourseSections() {
     List<CanvasSection> canvasSections = new ArrayList<>();
     canvasSections.add(new CanvasSection("4", "4", "My Section 4", "4", "4", "4", 1));
     canvasSections.add(new CanvasSection("1", "1", "My Section 1", "1", "1", "1", 1));

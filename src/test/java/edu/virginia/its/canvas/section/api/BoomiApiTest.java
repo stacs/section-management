@@ -19,7 +19,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 
 @SpringBootTest
-public class BoomiApiTest {
+class BoomiApiTest {
   public MockWebServer mockBackEnd;
 
   private BoomiApi boomiApi;
@@ -38,7 +38,7 @@ public class BoomiApiTest {
   }
 
   @Test
-  public void testGetWaitlistStatusForSections() throws Exception {
+  void testGetWaitlistStatusForSections() throws Exception {
     String json =
         StreamUtils.copyToString(
             new ClassPathResource("waitlistStatus.json").getInputStream(),

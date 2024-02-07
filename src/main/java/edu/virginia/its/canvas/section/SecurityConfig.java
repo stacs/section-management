@@ -1,21 +1,25 @@
 package edu.virginia.its.canvas.section;
 
 import edu.virginia.its.canvas.lti.util.RoleMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 import uk.ac.ox.ctl.lti13.Lti13Configurer;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-  @Autowired private RoleMapper roleMapper;
+  private final RoleMapper roleMapper;
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  public SecurityConfig(RoleMapper roleMapper) {
+    this.roleMapper = roleMapper;
+  }
+
+  @Bean
+  protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
     http.authorizeRequests()
         .antMatchers(
@@ -31,5 +35,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .hasRole("INSTRUCTOR");
     Lti13Configurer lti13Configurer = new Lti13Configurer().grantedAuthoritiesMapper(roleMapper);
     http.apply(lti13Configurer);
+    return http.build();
   }
 }

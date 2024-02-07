@@ -29,6 +29,10 @@ public class CanvasApi {
   private final String canvasAuthorization;
   private final Duration requestTimeout;
 
+  private static final String INCLUDE = "include[]";
+  private static final String PER_PAGE = "per_page";
+  private static final String AUTHORIZATION = "Authorization";
+
   public CanvasApi(
       @Value("${ltitool.canvas.apiUrl}") String canvasApiUrl,
       @Value("${ltitool.canvas.apiToken}") String canvasApiToken,
@@ -43,8 +47,8 @@ public class CanvasApi {
         .get()
         .uri(
             uriBuilder ->
-                uriBuilder.path("/courses/{id}").queryParam("include[]", "term").build(courseId))
-        .header("Authorization", canvasAuthorization)
+                uriBuilder.path("/courses/{id}").queryParam(INCLUDE, "term").build(courseId))
+        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .bodyToMono(Course.class)
         .block(requestTimeout);
@@ -56,8 +60,8 @@ public class CanvasApi {
     // (assuming the section has one) so we have to call the sections API endpoint separately.
     String uri =
         UriComponentsBuilder.fromPath("/users/sis_user_id:{computingId}/courses")
-            .queryParam("per_page", "100")
-            .queryParam("include[]", "term")
+            .queryParam(PER_PAGE, "100")
+            .queryParam(INCLUDE, "term")
             .queryParam("enrollment_type", "Teacher")
             // Using buildAndExpand() instead of just build() will stop 'include[]' from being
             // double url encoded.
@@ -67,8 +71,8 @@ public class CanvasApi {
     getPagedResponses(uri, Course[].class, results);
     uri =
         UriComponentsBuilder.fromPath("/users/sis_user_id:{computingId}/courses")
-            .queryParam("per_page", "100")
-            .queryParam("include[]", "term")
+            .queryParam(PER_PAGE, "100")
+            .queryParam(INCLUDE, "term")
             .queryParam("enrollment_type", "TA")
             // Using buildAndExpand() instead of just build() will stop 'include[]' from being
             // double url encoded.
@@ -81,8 +85,8 @@ public class CanvasApi {
   public List<CanvasSection> getCourseSections(String courseId) {
     String uri =
         UriComponentsBuilder.fromPath("/courses/{id}/sections")
-            .queryParam("per_page", "100")
-            .queryParam("include[]", "total_students")
+            .queryParam(PER_PAGE, "100")
+            .queryParam(INCLUDE, "total_students")
             .buildAndExpand(courseId)
             .toString();
     List<CanvasSection> results = new ArrayList<>();
@@ -98,7 +102,7 @@ public class CanvasApi {
                 uriBuilder
                     .path("/sections/{sectionId}/crosslist/{newCourseId}")
                     .build(sectionId, newCourseId))
-        .header("Authorization", canvasAuthorization)
+        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
             HttpStatus::isError,
@@ -118,7 +122,7 @@ public class CanvasApi {
     return canvasApi
         .delete()
         .uri(uriBuilder -> uriBuilder.path("/sections/{sectionId}/crosslist").build(sectionId))
-        .header("Authorization", canvasAuthorization)
+        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
             HttpStatus::isError,
@@ -136,7 +140,7 @@ public class CanvasApi {
   public List<Enrollment> getCourseEnrollments(String courseId) {
     String uri =
         UriComponentsBuilder.fromPath("/courses/{id}/enrollments")
-            .queryParam("per_page", "100")
+            .queryParam(PER_PAGE, "100")
             .build(courseId)
             .toString();
     List<Enrollment> results = new ArrayList<>();
@@ -153,7 +157,7 @@ public class CanvasApi {
                     .path("/courses/{courseId}/enrollments/{enrollmentId}")
                     .queryParam("task", "delete")
                     .build(courseId, enrollmentId))
-        .header("Authorization", canvasAuthorization)
+        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
             HttpStatus::isError,
@@ -174,7 +178,7 @@ public class CanvasApi {
         canvasApi
             .get()
             .uri(uri)
-            .header("Authorization", canvasAuthorization)
+            .header(AUTHORIZATION, canvasAuthorization)
             .retrieve()
             .toEntity(objectClass)
             .block(requestTimeout);
