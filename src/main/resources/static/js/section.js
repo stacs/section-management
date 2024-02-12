@@ -48,11 +48,13 @@ function disableButtons() {
 }
 
 function showLoadingIcon(element) {
+  element.textContent=strings['button.loading'];
   const spinnerSpan = document.createElement('span');
   spinnerSpan.setAttribute("class", "spinner-border spinner-border-sm");
   spinnerSpan.setAttribute("role", "status");
   spinnerSpan.setAttribute("aria-hidden", "true");
   element.appendChild(spinnerSpan);
+  document.getElementById("sr-text").textContent=strings['button.loading.srText'];
 }
 
 document.addEventListener("DOMContentLoaded", () => {
