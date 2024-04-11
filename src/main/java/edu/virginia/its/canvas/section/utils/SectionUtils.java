@@ -2,6 +2,7 @@ package edu.virginia.its.canvas.section.utils;
 
 import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlist;
 import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlistStatus;
+import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,6 +19,9 @@ public final class SectionUtils {
 
   public static final Comparator<CanvasSection> SECTION_NAME_COMPARATOR =
       Comparator.comparing(CanvasSection::name);
+
+  public static final Comparator<SisSection> SIS_SECTION_ID_COMPARATOR =
+      Comparator.comparing(SisSection::getSisSectionId);
 
   public static List<CanvasSection> getValidSisSections(List<CanvasSection> canvasSections) {
     return new ArrayList<>(

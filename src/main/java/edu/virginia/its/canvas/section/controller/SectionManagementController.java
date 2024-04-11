@@ -116,6 +116,7 @@ public class SectionManagementController {
 
     List<SisSection> waitlistStatusForSections =
         waitlistedSectionService.getWaitlistStatusForSections(potentialWaitlistCanvasSections);
+    waitlistStatusForSections.sort(SectionUtils.SIS_SECTION_ID_COMPARATOR);
     model.addAttribute("waitlistStatusForSections", waitlistStatusForSections);
     List<String> waitlistedSectionsAlreadyEnabled =
         waitlistStatusForSections.stream()
