@@ -56,6 +56,7 @@ public class SectionManagementController {
     Course currentCourse = sectionManagementService.getCourse(courseId);
     model.addAttribute("courseName", currentCourse.name());
     model.addAttribute("courseCode", currentCourse.courseCode());
+    model.addAttribute("courseTermName", currentCourse.term().name());
     List<CanvasSection> currentCourseCanvasSections =
         sectionManagementService.getValidCourseSections(courseId);
     // Show un-removable sections first in the UI, then show the list of sections that can be

@@ -5,3 +5,4 @@ spring:
 
 ltitool:
   baseUrl: https://collab-test.its.virginia.edu
+  resetMessages: true

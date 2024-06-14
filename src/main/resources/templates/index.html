@@ -16,6 +16,7 @@
             <p th:text="#{index.courseInfoDescription}">You are managing SIS sections for the following course:</p>
             <div th:utext="#{index.courseInfoCourseName(${courseName})}"></div>
             <div th:utext="#{index.courseInfoCourseCode(${courseCode})}"></div>
+            <input id="course-term-name" type="hidden" th:value="${courseTermName}"/>
 
             <h2 class="mt-4" th:text="#{index.addedSectionsHeader}">Currently added SIS sections</h2>
             <p th:text="#{index.addedSectionsDescription}">Any SIS sections included in the course site are listed below. Deselect previously added sections to remove them. The default SIS section cannot be removed.</p>
@@ -51,6 +52,7 @@
                 <ul>
                     <li class="form-check" th:each="section : ${sectionMap.value}">
                         <input th:id="'section-input-' + ${section.id}" type="checkbox"
+                               th:attr="data-term=${sectionMap.key.name}"
                                th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"/>
                         <label th:for="'section-input-' + ${section.id}" class="form-check-label"
                                th:text="#{index.addSectionLabel(${section.sisSectionId}, ${section.totalStudents})}">Section Label</label>
@@ -58,7 +60,8 @@
                 </ul>
             </div>
             <div id="submitDiv" class="mt-4">
-                <button id="formSubmitButton" type="submit" class="btn btn-primary" th:text="#{index.formContinueButton}">Continue</button>
+                <button id="formSubmitButton" type="submit" class="btn btn-primary" th:text="#{index.formContinueButton}"
+                        onsubmit="termCheck(event)">Continue</button>
             </div>
         </form>
     </body>
