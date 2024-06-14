@@ -9,11 +9,15 @@
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css}"/>
     <link rel="stylesheet" th:href="@{/css/section.css}"/>
     <script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script th:inline="javascript">
       /*<![CDATA[*/
       var strings = new Array();
       strings['button.loading'] = [[#{button.loading}]];
       strings['button.loading.srText'] = [[#{button.loading.srText}]];
+      strings['alert.multipleTerms.title'] = [[#{alert.multipleTerms.title}]];
+      strings['alert.multipleTerms.text'] = [[#{alert.multipleTerms.text}]];
+      strings['alert.multipleTerms.confirmText'] = [[#{alert.multipleTerms.confirmText}]];
       /*]]>*/
     </script>
     <script type="text/javascript" th:src="@{/js/section.js}"></script>

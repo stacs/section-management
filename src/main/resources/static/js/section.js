@@ -57,6 +57,42 @@ function showLoadingIcon(element) {
   document.getElementById("sr-text").textContent=strings['button.loading.srText'];
 }
 
+function termCheck() {
+  var courseTermName = document.getElementById("course-term-name").value;
+  var rostersToCrosslist = document.querySelectorAll("input:checked[data-term]");
+  var differentTerms = new Set();
+  rostersToCrosslist.forEach(function(rosterElement) {
+    var term = rosterElement.dataset.term;
+    if (term !== courseTermName) {
+      differentTerms.add(term);
+    }
+  });
+  if(differentTerms.size === 0) {
+    return true;
+  } else {
+    var text = strings['alert.multipleTerms.text'];
+    message = stringInterpolation(text, differentTerms.values().next().value, courseTermName);
+    Swal.fire({
+      title: strings['alert.multipleTerms.title'],
+      html: message,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: strings['alert.multipleTerms.confirmText']
+    }).then((result) => {
+      return result.isConfirmed;
+    });
+  }
+}
+
+// While not perfect, this is an attempt to replicate the string interpolation that thymeleaf uses so we don't
+// have to worry about different message formats depending on whether the message came from Java or Javascript
+function stringInterpolation(message, ...vars) {
+  for(var i=0; i<vars.length; i++) {
+    message = message.replace(`{${i}}`, vars[i]);
+  }
+  return message;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // Anchor clicks don't fire a submit event, so we handle those manually
   var anchorList = document.querySelectorAll("a");
@@ -67,8 +103,20 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   });
   var form = document.querySelector("form");
-  form.addEventListener("submit", (event) => {
-    showLoadingIcon(event.submitter);
-    disableButtons();
-  });
+  // TODO: split javascript into one file per page
+  if(form.id === "sectionManagementForm") {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if(termCheck()) {
+        showLoadingIcon(event.submitter);
+        disableButtons();
+        form.submit();
+      }
+    });
+  } else {
+    form.addEventListener("submit", (event) => {
+      showLoadingIcon(event.submitter);
+      disableButtons();
+    });
+  }
 });
