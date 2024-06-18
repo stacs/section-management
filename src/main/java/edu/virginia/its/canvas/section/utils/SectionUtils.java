@@ -2,8 +2,8 @@ package edu.virginia.its.canvas.section.utils;
 
 import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlist;
 import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlistStatus;
-import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
+import edu.virginia.its.canvas.section.model.SectionDTO;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -13,15 +13,12 @@ public final class SectionUtils {
 
   private SectionUtils() {}
 
-  public static final Comparator<CanvasSection> ALREADY_ADDED_SECTIONS_COMPARATOR =
-      Comparator.comparing(CanvasSection::isCrosslisted, Comparator.naturalOrder())
-          .thenComparing(CanvasSection::name, Comparator.naturalOrder());
+  public static final Comparator<SectionDTO> ALREADY_ADDED_SECTIONS_COMPARATOR =
+      Comparator.comparing(SectionDTO::isCrosslisted, Comparator.naturalOrder())
+          .thenComparing(SectionDTO::getName, Comparator.naturalOrder());
 
-  public static final Comparator<CanvasSection> SECTION_NAME_COMPARATOR =
-      Comparator.comparing(CanvasSection::name);
-
-  public static final Comparator<SisSection> SIS_SECTION_ID_COMPARATOR =
-      Comparator.comparing(SisSection::getSisSectionId);
+  public static final Comparator<SectionDTO> SECTION_NAME_COMPARATOR =
+      Comparator.comparing(SectionDTO::getName);
 
   public static List<CanvasSection> getValidSisSections(List<CanvasSection> canvasSections) {
     return new ArrayList<>(

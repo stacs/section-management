@@ -1,16 +1,15 @@
 package edu.virginia.its.canvas.section.service;
 
 import edu.virginia.its.canvas.section.api.CanvasApi;
+import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Enrollment;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Term;
+import edu.virginia.its.canvas.section.model.SectionDTO;
+import edu.virginia.its.canvas.section.utils.SectionMapper;
 import edu.virginia.its.canvas.section.utils.SectionUtils;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -20,56 +19,49 @@ import org.springframework.util.ObjectUtils;
 public class SectionManagementService {
 
   private final CanvasApi canvasApi;
+  private final WaitlistedSectionService waitlistedSectionService;
+  private final SectionMapper sectionMapper;
 
-  public SectionManagementService(CanvasApi canvasApi) {
+  public SectionManagementService(
+      CanvasApi canvasApi,
+      WaitlistedSectionService waitlistedSectionService,
+      SectionMapper sectionMapper) {
     this.canvasApi = canvasApi;
+    this.waitlistedSectionService = waitlistedSectionService;
+    this.sectionMapper = sectionMapper;
   }
 
   public Course getCourse(String courseId) {
     return canvasApi.getCourse(courseId);
   }
 
-  public List<Course> getUserCourses(String computingId) {
-    return canvasApi.getUserCourses(computingId);
-  }
-
-  public List<CanvasSection> getValidCourseSections(String courseId) {
-    List<CanvasSection> canvasSections =
-        SectionUtils.getValidSisSections(canvasApi.getCourseSections(courseId));
-    canvasSections.sort(SectionUtils.SECTION_NAME_COMPARATOR);
-    return canvasSections;
-  }
-
-  public Map<Term, List<CanvasSection>> getAllUserSectionsGroupedByTerm(List<Course> userCourses) {
-    // Sort terms by most recent
-    Map<Term, List<CanvasSection>> sectionsMap =
-        new TreeMap<>(Comparator.comparing(Term::sisTermId, Comparator.reverseOrder()));
-    List<CanvasSection> allCanvasSections = getAllUserSections(userCourses);
-    for (CanvasSection canvasSection : allCanvasSections) {
-      // Unfortunately the Section object that comes from Canvas does not include the Term, so we
-      // need to associate
-      // the Course to the Section in order to determine what the Section's Term is.
-      Course course =
-          userCourses.stream()
-              .filter(c -> canvasSection.courseId().equals(c.id()))
-              .findFirst()
-              .orElse(null);
-      if (course == null) {
-        log.warn("Could not find course object for section '{}'", canvasSection);
-        continue;
-      }
-      sectionsMap.computeIfAbsent(course.term(), k -> new ArrayList<>());
-      sectionsMap.get(course.term()).add(canvasSection);
+  public List<SectionDTO> getUsersTeachingSections(String computingId) {
+    List<SectionDTO> sectionDTOS = new ArrayList<>();
+    List<Course> userCourses = getUserCourses(computingId);
+    Map<String, Term> courseSisIdToTermMap = new HashMap<>();
+    for (Course course : userCourses) {
+      courseSisIdToTermMap.put(course.sisCourseId(), course.term());
     }
-    sectionsMap.values().removeIf(List::isEmpty);
-    // Sort sections within a term by name
-    sectionsMap
-        .values()
-        .forEach(sectionList -> sectionList.sort(SectionUtils.SECTION_NAME_COMPARATOR));
-    return sectionsMap;
+    List<CanvasSection> canvasSections = getCanvasSectionsForCourses(userCourses);
+    List<SisSection> sisSections =
+        waitlistedSectionService.getWaitlistStatusForSections(canvasSections);
+    canvasSections.sort(Comparator.comparing(CanvasSection::sisSectionId));
+    sisSections.sort(Comparator.comparing(SisSection::getSisSectionId));
+    for (int i = 0; i < canvasSections.size(); i++) {
+      CanvasSection canvasSection = canvasSections.get(i);
+      SisSection sisSection = sisSections.get(i);
+      Term term = courseSisIdToTermMap.get(canvasSection.sisSectionId());
+      SectionDTO sectionDTO = sectionMapper.from(canvasSection, sisSection, term);
+      sectionDTOS.add(sectionDTO);
+    }
+    return sectionDTOS;
   }
 
-  public List<CanvasSection> getAllUserSections(List<Course> userCourses) {
+  public List<Course> getUserCourses(String computingId) {
+    return canvasApi.getUsersTeachingCourses(computingId);
+  }
+
+  public List<CanvasSection> getCanvasSectionsForCourses(List<Course> userCourses) {
     List<CanvasSection> allCanvasSections = new ArrayList<>();
     // TODO: try to use spring reactive to make these calls simultaneously
     for (Course course : userCourses) {
@@ -83,18 +75,18 @@ public class SectionManagementService {
     return allCanvasSections;
   }
 
-  public boolean crosslistSection(CanvasSection canvasSection, String newCourseId) {
+  public boolean crosslistSection(SectionDTO section, String newCourseId) {
     try {
-      canvasApi.crosslistSection(canvasSection.id(), newCourseId);
+      canvasApi.crosslistSection(section.getId(), newCourseId);
     } catch (Exception ex) {
       return false;
     }
     return true;
   }
 
-  public boolean deCrosslistSection(CanvasSection canvasSection) {
+  public boolean deCrosslistSection(SectionDTO section) {
     try {
-      canvasApi.deCrosslistSection(canvasSection.id());
+      canvasApi.deCrosslistSection(section.getId());
     } catch (Exception ex) {
       return false;
     }
