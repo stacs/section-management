@@ -2,9 +2,9 @@
 <html lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org">
-    <head>
-        <div th:replace="fragments/head :: head"></div>
-    </head>
+<head>
+    <div th:replace="fragments/head :: head"></div>
+</head>
 
     <body>
         <span id="sr-text" class="visually-hidden" aria-live="assertive"></span>
@@ -18,24 +18,28 @@
             <div th:utext="#{index.courseInfoCourseCode(${courseCode})}"></div>
             <input id="course-term-name" type="hidden" th:value="${courseTermName}"/>
 
-            <h2 class="mt-4" th:text="#{index.addedSectionsHeader}">Currently added SIS sections</h2>
-            <p th:text="#{index.addedSectionsDescription}">Any SIS sections included in the course site are listed below. Deselect previously added sections to remove them. The default SIS section cannot be removed.</p>
-            <div>
-                <p th:if="${#lists.isEmpty(currentCourseSections)}" th:text="#{index.addedSectionsEmpty}">No additional SIS sections were previously added to the course.</p>
-                <ul th:else>
-                    <li class="form-check" th:each="section : ${currentCourseSections}">
-                        <input th:id="'section-input-' + ${section.id}" type="checkbox"
-                               th:field="*{sectionsToKeep}" th:value="${section.id}"
-                               th:disabled="${section.crosslistedCourseId == null}" class="form-check-input"/>
-                        <label th:if="${waitlistSectionsMap.containsKey(section.sisSectionId)}"
-                               th:for="'section-input-' + ${section.id}" class="form-check-label"
-                               th:text="#{index.addedSectionLabelWaitlistEnabled(${section.sisSectionId}, ${section.totalStudents})}">Section label with waitlist enabled</label>
-                        <label th:unless="${waitlistSectionsMap.containsKey(section.sisSectionId)}"
-                               th:for="'section-input-' + ${section.id}" class="form-check-label"
-                               th:text="#{index.addedSectionLabel(${section.sisSectionId}, ${section.totalStudents})}">Section label with waitlist disabled</label>
-                    </li>
-                </ul>
-            </div>
+    <h2 class="mt-4" th:text="#{index.addedSectionsHeader}">Currently added SIS sections</h2>
+    <p th:text="#{index.addedSectionsDescription}">Any SIS sections included in the course site are listed below.
+        Deselect previously added sections to remove them. The default SIS section cannot be removed.</p>
+    <div>
+        <p th:if="${#lists.isEmpty(currentCourseSections)}" th:text="#{index.addedSectionsEmpty}">No additional SIS
+            sections were previously added to the course.</p>
+        <ul th:else>
+            <li class="form-check" th:each="section : ${currentCourseSections}">
+                <input th:id="'section-input-' + ${section.id}" type="checkbox"
+                       th:field="*{sectionsToKeep}" th:value="${section.id}"
+                       th:disabled="${section.isCrosslisted == false}" class="form-check-input"/>
+                <label th:if="${section.isWaitlist}"
+                       th:for="'section-input-' + ${section.id}" class="form-check-label"
+                       th:text="#{index.addedSectionLabelWaitlistEnabled(${section.sisId}, ${section.totalStudents})}">Section
+                    label with waitlist enabled</label>
+                <label th:unless="${section.isWaitlist}"
+                       th:for="'section-input-' + ${section.id}" class="form-check-label"
+                       th:text="#{index.addedSectionLabel(${section.sisId}, ${section.totalStudents})}">Section
+                    label with waitlist disabled</label>
+            </li>
+        </ul>
+    </div>
 
             <h2 class="mt-4" th:text="#{index.addSectionsHeader}">Add Additional SIS Sections</h2>
             <div>
