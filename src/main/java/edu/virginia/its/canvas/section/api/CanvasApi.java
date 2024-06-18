@@ -54,7 +54,7 @@ public class CanvasApi {
         .block(requestTimeout);
   }
 
-  public List<Course> getUserCourses(String computingId) {
+  public List<Course> getUsersTeachingCourses(String computingId) {
     // The courses API endpoint has an option to return section data, but it doesn't return the
     // section's SIS ID
     // (assuming the section has one) so we have to call the sections API endpoint separately.

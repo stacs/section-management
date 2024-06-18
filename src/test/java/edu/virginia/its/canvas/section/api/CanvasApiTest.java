@@ -63,7 +63,7 @@ class CanvasApiTest {
   }
 
   @Test
-  void testGetUserCourses_paging() throws Exception {
+  void testGetUsersTeachingCourses_paging() throws Exception {
     String json1 =
         StreamUtils.copyToString(
             new ClassPathResource("canvasCourse1.json").getInputStream(), Charset.defaultCharset());
@@ -83,10 +83,11 @@ class CanvasApiTest {
         new MockResponse().setBody(json2).addHeader("Content-Type", "application/json"));
     mockBackEnd.enqueue(
         new MockResponse().setBody(json3).addHeader("Content-Type", "application/json"));
-    List<CanvasResponses.Course> userCourses = canvasApi.getUserCourses("test-user");
-    assertEquals(3, userCourses.size());
+    List<CanvasResponses.Course> usersTeachingCourses =
+        canvasApi.getUsersTeachingCourses("test-user");
+    assertEquals(3, usersTeachingCourses.size());
     CanvasResponses.Course course =
-        userCourses.stream().filter(c -> "1".equals(c.id())).findFirst().orElse(null);
+        usersTeachingCourses.stream().filter(c -> "1".equals(c.id())).findFirst().orElse(null);
     assertNotNull(course);
     RecordedRequest request = mockBackEnd.takeRequest();
     assertEquals(

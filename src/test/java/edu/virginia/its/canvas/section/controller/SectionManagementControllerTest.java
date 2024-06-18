@@ -11,10 +11,10 @@ import edu.virginia.its.canvas.lti.util.CanvasAuthenticationToken;
 import edu.virginia.its.canvas.lti.util.Constants;
 import edu.virginia.its.canvas.section.SectionManagementApplication;
 import edu.virginia.its.canvas.section.SecurityConfig;
-import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
-import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Term;
+import edu.virginia.its.canvas.section.model.SectionDTO;
+import edu.virginia.its.canvas.section.model.TermDTO;
 import edu.virginia.its.canvas.section.service.SectionManagementService;
 import edu.virginia.its.canvas.section.service.WaitlistedSectionService;
 import java.util.*;
@@ -71,43 +71,103 @@ class SectionManagementControllerTest {
   void testController_instructorRole() throws Exception {
     List<String> roles = new ArrayList<>();
     roles.add("ROLE_INSTRUCTOR");
-    SecurityContextHolder.getContext().setAuthentication(getToken(roles, "user", "123"));
+    String username = "user";
+    String currentCourseId = "123";
+    SecurityContextHolder.getContext()
+        .setAuthentication(getToken(roles, username, currentCourseId));
+
     Term term = new Term("sis-term-id", "Test Term", "sis-term-id");
-    Course course = new Course("123", "My Awesome Course", "My Course Code", "sis-course-id", term);
-    List<Course> courseList = new ArrayList<>();
-    courseList.add(course);
-    List<CanvasSection> canvasSections = new ArrayList<>();
-    CanvasSection canvasSection1 =
-        new CanvasSection("1", "123", "Section 1", "sis-section-id-1", "sis-course-id", null, 1);
-    CanvasSection canvasSection2 =
-        new CanvasSection("2", "123", "Section 2", "sis-section-id-2", "sis-course-id", "321", 2);
-    CanvasSection canvasSection3 =
-        new CanvasSection("3", "123", "Section 3", "sis-section-id-3", "sis-course-id", null, 3);
-    canvasSections.add(canvasSection1);
-    canvasSections.add(canvasSection2);
-    canvasSections.add(canvasSection3);
-    List<SisSection> sisSections = new ArrayList<>();
-    SisSection sisSection1 =
-        new SisSection(
-            "term", "subject", "catalogNumber", "classSection", "academicGroup", true, 4);
-    SisSection sisSection2 =
-        new SisSection(
-            "term", "subject", "catalogNumber", "classSection", "academicGroup", false, 0);
-    sisSections.add(sisSection1);
-    sisSections.add(sisSection2);
-    Map<Term, List<CanvasSection>> termMap = new HashMap<>();
-    List<CanvasSection> allUserSections = new ArrayList<>(canvasSections);
-    CanvasSection canvasSection4 =
-        new CanvasSection("4", "321", "Section 4", "sis-section-id-4", "sis-course-id-2", null, 4);
-    allUserSections.add(canvasSection4);
-    termMap.put(term, allUserSections);
+    Course course =
+        new Course(currentCourseId, "My Awesome Course", "My Course Code", "sis-course-id", term);
+    List<SectionDTO> sectionDTOS = new ArrayList<>();
+    TermDTO termDTO = new TermDTO("sis-term-id", "Test Term");
+    SectionDTO section1 =
+        new SectionDTO(
+            "1",
+            "sis-section-id-1",
+            "Section 1",
+            currentCourseId,
+            "sis-course-id-123",
+            termDTO,
+            1,
+            false,
+            "",
+            false,
+            0);
+    SectionDTO section2 =
+        new SectionDTO(
+            "2",
+            "sis-section-id-2",
+            "Section 2",
+            currentCourseId,
+            "sis-course-id-123",
+            termDTO,
+            2,
+            true,
+            "321",
+            false,
+            0);
+    SectionDTO section3 =
+        new SectionDTO(
+            "3",
+            "sis-section-id-3",
+            "Section 3",
+            currentCourseId,
+            "sis-course-id-123",
+            termDTO,
+            3,
+            false,
+            null,
+            false,
+            0);
+    SectionDTO section4 =
+        new SectionDTO(
+            "4",
+            "sis-section-id-4",
+            "Section 4",
+            "321",
+            "sis-course-id-321",
+            termDTO,
+            4,
+            false,
+            "",
+            false,
+            0);
+    SectionDTO section5 =
+        new SectionDTO(
+            "5",
+            "sis-section-id-5",
+            "Section 5",
+            "321",
+            "sis-course-id-321",
+            termDTO,
+            5,
+            true,
+            currentCourseId,
+            false,
+            0);
+    SectionDTO section6 =
+        new SectionDTO(
+            "6",
+            "sis-section-id-6",
+            "Section 6",
+            "321",
+            "sis-course-id-321",
+            termDTO,
+            6,
+            false,
+            null,
+            false,
+            0);
+    sectionDTOS.add(section1);
+    sectionDTOS.add(section2);
+    sectionDTOS.add(section3);
+    sectionDTOS.add(section4);
+    sectionDTOS.add(section5);
+    sectionDTOS.add(section6);
 
     when(sectionManagementService.getCourse("123")).thenReturn(course);
-    when(sectionManagementService.getValidCourseSections("123")).thenReturn(canvasSections);
-    when(waitlistedSectionService.getWaitlistStatusForSections(canvasSections))
-        .thenReturn(sisSections);
-    when(sectionManagementService.getUserCourses("user")).thenReturn(courseList);
-    when(sectionManagementService.getAllUserSectionsGroupedByTerm(courseList)).thenReturn(termMap);
+    when(sectionManagementService.getUsersTeachingSections(username)).thenReturn(sectionDTOS);
     this.mockMvc
         .perform(get("/index"))
         .andExpect(status().isOk())
@@ -119,18 +179,12 @@ class SectionManagementControllerTest {
         .andExpect(
             model()
                 .attribute(
-                    "currentCourseSections",
-                    containsInRelativeOrder(canvasSection1, canvasSection3, canvasSection2)))
-        .andExpect(model().attributeExists("waitlistSectionsMap"))
-        .andExpect(model().attribute("waitlistSectionsMap", aMapWithSize(1)))
-        .andExpect(
-            model()
-                .attribute(
-                    "waitlistSectionsMap",
-                    hasEntry("term_subject_catalogNumber-classSection_academicGroup", sisSection1)))
+                    "currentCourseSections", containsInRelativeOrder(section1, section3, section2)))
         .andExpect(model().attributeExists("sectionsMap"))
         .andExpect(model().attribute("sectionsMap", aMapWithSize(1)))
-        .andExpect(model().attribute("sectionsMap", hasEntry(term, List.of(canvasSection4))))
+        .andExpect(
+            model()
+                .attribute("sectionsMap", hasEntry(termDTO, List.of(section4, section5, section6))))
         .andExpect(model().attributeExists("sectionManagementForm"))
         .andExpect(
             model()

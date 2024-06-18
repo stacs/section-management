@@ -5,6 +5,7 @@ import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlist;
 import edu.virginia.its.canvas.section.model.BoomiRequests.CanvasWaitlistStatus;
 import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
+import edu.virginia.its.canvas.section.model.SectionDTO;
 import edu.virginia.its.canvas.section.utils.SectionUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,28 +22,26 @@ public class WaitlistedSectionService {
     this.boomiApi = boomiApi;
   }
 
-  public void addWaitlistSections(String computingId, List<SisSection> sisSections) {
+  public void addWaitlistSections(String computingId, List<SectionDTO> sectionDTOS) {
     List<CanvasWaitlist> sectionsList = new ArrayList<>();
-    for (SisSection sisSection : sisSections) {
-      CanvasWaitlist section =
-          SectionUtils.sectionIdToCanvasWaitlist(sisSection.getSisSectionId(), true);
+    for (SectionDTO sectionDTO : sectionDTOS) {
+      CanvasWaitlist section = SectionUtils.sectionIdToCanvasWaitlist(sectionDTO.getSisId(), true);
       if (section != null) {
         sectionsList.add(section);
       }
     }
     log.info(
-        "User '{}' is enabling the following sections for waitlists: {}", computingId, sisSections);
+        "User '{}' is enabling the following sections for waitlists: {}", computingId, sectionDTOS);
     boolean success = boomiApi.updateWaitlistsForSections(sectionsList);
     if (!success) {
       log.error("Received error when sending waitlists to Boomi, waitlists were not enabled");
     }
   }
 
-  public void removeWaitlistSections(String computingId, List<SisSection> sisSections) {
+  public void removeWaitlistSections(String computingId, List<SectionDTO> sectionDTOS) {
     List<CanvasWaitlist> sectionsList = new ArrayList<>();
-    for (SisSection sisSection : sisSections) {
-      CanvasWaitlist section =
-          SectionUtils.sectionIdToCanvasWaitlist(sisSection.getSisSectionId(), false);
+    for (SectionDTO sectionDTO : sectionDTOS) {
+      CanvasWaitlist section = SectionUtils.sectionIdToCanvasWaitlist(sectionDTO.getSisId(), false);
       if (section != null) {
         sectionsList.add(section);
       }
@@ -50,7 +49,7 @@ public class WaitlistedSectionService {
     log.info(
         "User '{}' is disabling the following sections for waitlists: {}",
         computingId,
-        sisSections);
+        sectionDTOS);
     boolean success = boomiApi.updateWaitlistsForSections(sectionsList);
     if (!success) {
       log.error("Received error when sending waitlists to Boomi, waitlists were not disabled");
