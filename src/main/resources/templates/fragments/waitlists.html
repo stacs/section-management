@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
+<body>
+<div th:fragment="waitlists">
+    <input type="hidden" th:field="*{sectionsToAdd}"/>
+    <input type="hidden" th:field="*{sectionsToKeep}"/>
+    <h2 th:text="#{waitlists.header}">Manage Waitlisted Students</h2>
+    <p th:text="#{waitlists.description1}">Select sections to add any waitlisted students in the corresponding rosters
+        to the course site. Deselect sections to remove the waitlisted students.</p>
+    <p th:text="#{waitlists.description2}">Changes to add or remove waitlisted students will be reflected in the course
+        site within two hours.</p>
+    <input id="selectAllSectionsForWaitlistsButton" type="checkbox" onclick="selectAllSectionsForWaitlists()"
+           class="form-check-input"/>
+    <label for="selectAllSectionsForWaitlistsButton" class="form-check-label" th:text="#{waitlists.addAllButton}">Add
+        waitlisted students for all sections</label>
+    <ul>
+        <li class="form-check" th:id="'waitlist-section-' + ${section.getId}" th:each="section : ${allSections}">
+            <input th:id="'waitlist-section-input-' + ${section.getId}" type="checkbox"
+                   th:field="*{waitlistsToAdd}" th:value="${section.getSisId}" class="form-check-input"
+                   th:attr="data-section-sis-id=${section.getSisId}"/>
+            <label th:id="'label-waitlist-section-input-' + ${section.getId}"
+                   th:for="'waitlist-section-input-' + ${section.getId}" class="form-check-label"
+                   th:attr="aria-label=#{waitlists.sectionAriaLabel(${section.getSisId}, ${section.getWaitlistStudents})}"
+                   th:text="#{waitlists.sectionLabel(${section.getSisId}, ${section.getWaitlistStudents})}"></label>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

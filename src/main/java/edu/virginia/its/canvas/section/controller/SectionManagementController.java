@@ -67,6 +67,7 @@ public class SectionManagementController {
             .filter(sectionDTO -> !courseId.equals(sectionDTO.getCourseId()))
             .toList();
 
+    model.addAttribute("allSections", usersTeachingSections);
     model.addAttribute("currentCourseSections", sectionsInCurrentCourse);
 
     // TODO: make sure terms are sorted by sis term id in the template
@@ -75,12 +76,20 @@ public class SectionManagementController {
 
     model.addAttribute("sectionsMap", sectionsMap);
 
-    // We need to pre-populate the form with the sections already added so the checkboxes for those
-    // sections will be checked
+    // We need to pre-populate the form with the sections and waitlists already added so the
+    // checkboxes for those sections will be checked
     List<String> sectionIdsInCurrentCourse =
         sectionsInCurrentCourse.stream().map(SectionDTO::getId).toList();
+    //    TODO: should we filter waitlists via waitlistDataFound boolean instead of via allSections?
+    //            should we show waitlists that we couldnt find data for in their own section/div?
+    List<String> waitlistedSectionsAlreadyEnabled =
+        usersTeachingSections.stream()
+            .filter(SectionDTO::isWaitlist)
+            .map(SectionDTO::getSisId)
+            .toList();
     SectionManagementForm sectionManagementForm = new SectionManagementForm();
     sectionManagementForm.setSectionsToKeep(sectionIdsInCurrentCourse);
+    sectionManagementForm.setWaitlistsToAdd(waitlistedSectionsAlreadyEnabled);
     model.addAttribute("sectionManagementForm", sectionManagementForm);
 
     return "index";
@@ -196,7 +205,7 @@ public class SectionManagementController {
         .filter(
             section ->
                 !section.isWaitlist()
-                    && sectionManagementForm.getWaitlistsToAdd().contains(section.getSisId()))
+                    && sectionManagementForm.getWaitlistsToAdd().contains(section.getId()))
         .toList();
   }
 
@@ -207,7 +216,7 @@ public class SectionManagementController {
         .filter(
             section ->
                 section.isWaitlist()
-                    && !sectionManagementForm.getWaitlistsToAdd().contains(section.getSisId()))
+                    && !sectionManagementForm.getWaitlistsToAdd().contains(section.getId()))
         .toList();
   }
 }

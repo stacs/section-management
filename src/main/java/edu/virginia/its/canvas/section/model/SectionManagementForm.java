@@ -10,6 +10,9 @@ import lombok.Setter;
 public final class SectionManagementForm {
 
   private String selectedTerm;
+  private List<String> sectionsAlreadyAdded = new ArrayList<>();
+  private List<String> waitlistsAlreadyAdded = new ArrayList<>();
+
   private List<String> sectionsToKeep = new ArrayList<>();
   private List<String> sectionsToAdd = new ArrayList<>();
   private List<String> waitlistsToAdd = new ArrayList<>();

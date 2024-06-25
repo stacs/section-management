@@ -28,10 +28,17 @@ public class SectionMapper {
     TermDTO termDTO = new TermDTO(term.sisTermId(), term.name());
     sectionDTO.setTerm(termDTO);
     sectionDTO.setTotalStudents(canvasSection.totalStudents());
-    sectionDTO.setCrosslisted(!ObjectUtils.isEmpty(sectionDTO.getCrosslistedCourseId()));
-    sectionDTO.setCrosslistedCourseId(sectionDTO.getCrosslistedCourseId());
-    sectionDTO.setWaitlist(sisSection.hasWaitlist());
-    sectionDTO.setWaitlistStudents(sisSection.numberOfWaitlistStudents());
+    sectionDTO.setCrosslisted(!ObjectUtils.isEmpty(canvasSection.crosslistedCourseId()));
+    sectionDTO.setCrosslistedCourseId(canvasSection.crosslistedCourseId());
+    if (sisSection == null) {
+      sectionDTO.setWaitlistDataFound(false);
+      sectionDTO.setWaitlist(false);
+      sectionDTO.setWaitlistStudents(0);
+    } else {
+      sectionDTO.setWaitlistDataFound(true);
+      sectionDTO.setWaitlist(sisSection.hasWaitlist());
+      sectionDTO.setWaitlistStudents(sisSection.numberOfWaitlistStudents());
+    }
     return sectionDTO;
   }
 }

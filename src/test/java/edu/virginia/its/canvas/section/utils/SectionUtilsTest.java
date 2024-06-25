@@ -40,19 +40,19 @@ class SectionUtilsTest {
     List<SectionDTO> sectionDTOS = new ArrayList<>();
     sectionDTOS.add(
         new SectionDTO(
-            "4", "4", "My SectionDTO 4", "4", "4", new TermDTO(), 4, true, "4", false, 0));
+            "4", "4", "My SectionDTO 4", "4", "4", new TermDTO(), 4, true, "4", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "1", "1", "My SectionDTO 1", "1", "1", new TermDTO(), 1, true, "1", false, 0));
+            "1", "1", "My SectionDTO 1", "1", "1", new TermDTO(), 1, true, "1", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "2", "2", "My SectionDTO 2", "2", "2", new TermDTO(), 2, true, "2", false, 0));
+            "2", "2", "My SectionDTO 2", "2", "2", new TermDTO(), 2, true, "2", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "5", "5", "My SectionDTO 5", "5", "5", new TermDTO(), 5, false, "", false, 0));
+            "5", "5", "My SectionDTO 5", "5", "5", new TermDTO(), 5, false, "", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "3", "3", "My SectionDTO 3", "3", "3", new TermDTO(), 3, false, "", false, 0));
+            "3", "3", "My SectionDTO 3", "3", "3", new TermDTO(), 3, false, "", false, false, 0));
 
     sectionDTOS.sort(SectionUtils.SECTION_NAME_COMPARATOR);
 
@@ -69,19 +69,19 @@ class SectionUtilsTest {
     List<SectionDTO> sectionDTOS = new ArrayList<>();
     sectionDTOS.add(
         new SectionDTO(
-            "4", "4", "My SectionDTO 4", "4", "4", new TermDTO(), 4, true, "4", false, 0));
+            "4", "4", "My SectionDTO 4", "4", "4", new TermDTO(), 4, true, "4", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "1", "1", "My SectionDTO 1", "1", "1", new TermDTO(), 1, true, "1", false, 0));
+            "1", "1", "My SectionDTO 1", "1", "1", new TermDTO(), 1, true, "1", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "2", "2", "My SectionDTO 2", "2", "2", new TermDTO(), 2, true, "2", false, 0));
+            "2", "2", "My SectionDTO 2", "2", "2", new TermDTO(), 2, true, "2", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "5", "5", "My SectionDTO 5", "5", "5", new TermDTO(), 5, false, "", false, 0));
+            "5", "5", "My SectionDTO 5", "5", "5", new TermDTO(), 5, false, "", false, false, 0));
     sectionDTOS.add(
         new SectionDTO(
-            "3", "3", "My SectionDTO 3", "3", "3", new TermDTO(), 3, false, "", false, 0));
+            "3", "3", "My SectionDTO 3", "3", "3", new TermDTO(), 3, false, "", false, false, 0));
 
     sectionDTOS.sort(SectionUtils.ALREADY_ADDED_SECTIONS_COMPARATOR);
 

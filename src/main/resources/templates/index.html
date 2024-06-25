@@ -2,70 +2,24 @@
 <html lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org">
-<head>
-    <div th:replace="fragments/head :: head"></div>
-</head>
+    <head>
+        <div th:replace="fragments/head :: head"></div>
+    </head>
 
     <body>
         <span id="sr-text" class="visually-hidden" aria-live="assertive"></span>
         <div th:replace="fragments/header :: header"></div>
         <p th:text="#{index.description}">By default, a course site and section are created in UVACanvas for each roster listed in the Student Information System (SIS).
             The Manage SIS Sections tool allows instructors to add or remove additional SIS sections in a single course site in UVACanvas.</p>
-        <form id="sectionManagementForm" action="#" th:action="@{/waitlists}" th:object="${sectionManagementForm}" method="post">
-            <h2 class="mt-4" th:text="#{index.courseInfoHeader}">Course Information</h2>
-            <p th:text="#{index.courseInfoDescription}">You are managing SIS sections for the following course:</p>
-            <div th:utext="#{index.courseInfoCourseName(${courseName})}"></div>
-            <div th:utext="#{index.courseInfoCourseCode(${courseCode})}"></div>
+        <form id="sectionManagementForm" action="#" th:action="@{/apply-changes}" th:object="${sectionManagementForm}" method="post">
             <input id="course-term-name" type="hidden" th:value="${courseTermName}"/>
-
-    <h2 class="mt-4" th:text="#{index.addedSectionsHeader}">Currently added SIS sections</h2>
-    <p th:text="#{index.addedSectionsDescription}">Any SIS sections included in the course site are listed below.
-        Deselect previously added sections to remove them. The default SIS section cannot be removed.</p>
-    <div>
-        <p th:if="${#lists.isEmpty(currentCourseSections)}" th:text="#{index.addedSectionsEmpty}">No additional SIS
-            sections were previously added to the course.</p>
-        <ul th:else>
-            <li class="form-check" th:each="section : ${currentCourseSections}">
-                <input th:id="'section-input-' + ${section.id}" type="checkbox"
-                       th:field="*{sectionsToKeep}" th:value="${section.id}"
-                       th:disabled="${section.isCrosslisted == false}" class="form-check-input"/>
-                <label th:if="${section.isWaitlist}"
-                       th:for="'section-input-' + ${section.id}" class="form-check-label"
-                       th:text="#{index.addedSectionLabelWaitlistEnabled(${section.sisId}, ${section.totalStudents})}">Section
-                    label with waitlist enabled</label>
-                <label th:unless="${section.isWaitlist}"
-                       th:for="'section-input-' + ${section.id}" class="form-check-label"
-                       th:text="#{index.addedSectionLabel(${section.sisId}, ${section.totalStudents})}">Section
-                    label with waitlist disabled</label>
-            </li>
-        </ul>
-    </div>
-
-            <h2 class="mt-4" th:text="#{index.addSectionsHeader}">Add Additional SIS Sections</h2>
-            <div>
-                <label for="term-select" th:text="#{index.addSectionsDescription}">Select a term from the menu to add additional SIS sections.
-                    If a term is not listed in the menu, there are no additional sections available.</label>
-                <select id="term-select" th:field="*{selectedTerm}" onchange="selectTerm()" class="form-select mt-3">
-                    <option selected th:value="-1" th:text="#{index.addSectionsDefaultOption}">Select Term</option>
-                    <option th:each="term : ${sectionsMap.keySet()}" th:value="${term.sisTermId}" th:text="${term.name}"></option>
-                </select>
-            </div>
-            <div th:id="'term-div-' + ${sectionMap.key.sisTermId}" th:each="sectionMap : ${sectionsMap}" style="display: none;" class="mt-3">
-                <input th:id="'selectAllSectionsForTerm' + ${sectionMap.key.sisTermId}" type="checkbox" onclick="selectAllSectionsForTerm(this)" class="form-check-input"/>
-                <label th:for="'selectAllSectionsForTerm' + ${sectionMap.key.sisTermId}" class="form-check-label" th:text="#{index.addSectionsAddAllLabel}">Add all sections</label>
-                <ul>
-                    <li class="form-check" th:each="section : ${sectionMap.value}">
-                        <input th:id="'section-input-' + ${section.id}" type="checkbox"
-                               th:attr="data-term=${sectionMap.key.name}"
-                               th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"/>
-                        <label th:for="'section-input-' + ${section.id}" class="form-check-label"
-                               th:text="#{index.addSectionLabel(${section.sisSectionId}, ${section.totalStudents})}">Section Label</label>
-                    </li>
-                </ul>
-            </div>
+            <div th:insert="fragments/addRemoveSections :: addRemoveSections" id="tab-add-remove-sections"></div>
+            <div th:insert="fragments/waitlists :: waitlists" style="display: none" id="tab-waitlists"></div>
+            <div th:insert="fragments/validate :: validate" style="display: none" id="tab-validate"></div>
             <div id="submitDiv" class="mt-4">
-                <button id="formSubmitButton" type="submit" class="btn btn-primary" th:text="#{index.formContinueButton}"
-                        onsubmit="termCheck(event)">Continue</button>
+                <a id="previous-button" style="display: none" class="btn btn-primary" th:text="#{index.previousButton}" onclick="previousTab()">Previous</a>
+                <a id="next-button" class="btn btn-primary" th:text="#{index.nextButton}" onclick="nextTab()">Next</a>
+                <button id="save-button" type="submit" style="display: none" class="btn btn-primary" th:text="#{index.saveButton}" onsubmit="termCheck(event)">Save</button>
             </div>
         </form>
     </body>
