@@ -17,6 +17,7 @@ public class SectionDTO {
   private int totalStudents;
   private boolean crosslisted;
   private String crosslistedCourseId;
+  private boolean waitlistDataFound;
   private boolean waitlist;
   private int waitlistStudents;
 }

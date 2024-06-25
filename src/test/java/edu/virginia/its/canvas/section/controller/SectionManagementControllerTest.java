@@ -93,6 +93,7 @@ class SectionManagementControllerTest {
             false,
             "",
             false,
+            false,
             0);
     SectionDTO section2 =
         new SectionDTO(
@@ -105,6 +106,7 @@ class SectionManagementControllerTest {
             2,
             true,
             "321",
+            false,
             false,
             0);
     SectionDTO section3 =
@@ -119,6 +121,7 @@ class SectionManagementControllerTest {
             false,
             null,
             false,
+            false,
             0);
     SectionDTO section4 =
         new SectionDTO(
@@ -131,6 +134,7 @@ class SectionManagementControllerTest {
             4,
             false,
             "",
+            false,
             false,
             0);
     SectionDTO section5 =
@@ -145,6 +149,7 @@ class SectionManagementControllerTest {
             true,
             currentCourseId,
             false,
+            false,
             0);
     SectionDTO section6 =
         new SectionDTO(
@@ -157,6 +162,7 @@ class SectionManagementControllerTest {
             6,
             false,
             null,
+            false,
             false,
             0);
     sectionDTOS.add(section1);

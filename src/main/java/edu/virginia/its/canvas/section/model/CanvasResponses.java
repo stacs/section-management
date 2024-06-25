@@ -1,7 +1,6 @@
 package edu.virginia.its.canvas.section.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.util.ObjectUtils;
 
 public final class CanvasResponses {
 
@@ -21,12 +20,7 @@ public final class CanvasResponses {
       @JsonProperty("sis_section_id") String sisSectionId,
       @JsonProperty("sis_course_id") String sisCourseId,
       @JsonProperty("nonxlist_course_id") String crosslistedCourseId,
-      @JsonProperty("total_students") int totalStudents) {
-
-    public boolean isCrosslisted() {
-      return !ObjectUtils.isEmpty(crosslistedCourseId);
-    }
-  }
+      @JsonProperty("total_students") int totalStudents) {}
 
   public record Enrollment(
       String id,

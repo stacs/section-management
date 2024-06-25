@@ -10,6 +10,8 @@ import edu.virginia.its.canvas.section.model.SectionDTO;
 import edu.virginia.its.canvas.section.utils.SectionMapper;
 import edu.virginia.its.canvas.section.utils.SectionUtils;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -45,12 +47,14 @@ public class SectionManagementService {
     List<CanvasSection> canvasSections = getCanvasSectionsForCourses(userCourses);
     List<SisSection> sisSections =
         waitlistedSectionService.getWaitlistStatusForSections(canvasSections);
+    Map<String, SisSection> sectionSisIdToSisSectionMap =
+        sisSections.stream()
+            .collect(Collectors.toMap(SisSection::getSisSectionId, Function.identity()));
     canvasSections.sort(Comparator.comparing(CanvasSection::sisSectionId));
     sisSections.sort(Comparator.comparing(SisSection::getSisSectionId));
-    for (int i = 0; i < canvasSections.size(); i++) {
-      CanvasSection canvasSection = canvasSections.get(i);
-      SisSection sisSection = sisSections.get(i);
-      Term term = courseSisIdToTermMap.get(canvasSection.sisSectionId());
+    for (CanvasSection canvasSection : canvasSections) {
+      SisSection sisSection = sectionSisIdToSisSectionMap.get(canvasSection.sisSectionId());
+      Term term = courseSisIdToTermMap.get(canvasSection.sisCourseId());
       SectionDTO sectionDTO = sectionMapper.from(canvasSection, sisSection, term);
       sectionDTOS.add(sectionDTO);
     }
@@ -58,6 +62,7 @@ public class SectionManagementService {
   }
 
   public List<Course> getUserCourses(String computingId) {
+    //    need to remove courses that arent valid, maybe by using isValidTerm
     return canvasApi.getUsersTeachingCourses(computingId);
   }
 
