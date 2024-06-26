@@ -57,23 +57,6 @@ function showLoadingIcon(element) {
   document.getElementById("sr-text").textContent=strings['button.loading.srText'];
 }
 
-let currentTab = 1;
-
-let tabFunctionMap = new Map();
-tabFunctionMap.set(1, showAddRemoveSectionTab);
-tabFunctionMap.set(2, showWaitlistsTab);
-tabFunctionMap.set(3, showValidateTab);
-
-function previousTab() {
-    currentTab--;
-    tabFunctionMap.get(currentTab)();
-}
-
-function nextTab() {
-    currentTab++;
-    tabFunctionMap.get(currentTab)();
-}
-
 function hideAllTabs() {
     var tabList = document.querySelectorAll('[id^="tab-"]');
     tabList.forEach(tab => {
@@ -95,12 +78,6 @@ function showAddRemoveSectionTab() {
     hideAllTabs();
     var tab = document.getElementById("tab-add-remove-sections");
     showElement(tab);
-    var previousButton = document.getElementById("previous-button");
-    var nextButton = document.getElementById("next-button");
-    var saveButton = document.getElementById("save-button");
-    hideElement(previousButton);
-    showElement(nextButton);
-    hideElement(saveButton);
 }
 
 function showWaitlistsTab() {
@@ -122,12 +99,6 @@ function showWaitlistsTab() {
     });
     var tab = document.getElementById("tab-waitlists");
     showElement(tab);
-    var previousButton = document.getElementById("previous-button");
-    var nextButton = document.getElementById("next-button");
-    var saveButton = document.getElementById("save-button");
-    showElement(previousButton);
-    showElement(nextButton);
-    hideElement(saveButton);
 }
 
 function showValidateTab() {
@@ -205,17 +176,8 @@ function showValidateTab() {
         });
         validateRemoveWaitlists.appendChild(ul);
     }
-    var validateRemoveSections = document.getElementById("validateRemoveSections");
-    var validateAddWaitlists = document.getElementById("validateAddWaitlists");
-    var validateRemoveWaitlists = document.getElementById("validateRemoveWaitlists");
     var tab = document.getElementById("tab-validate");
     showElement(tab);
-    var previousButton = document.getElementById("previous-button");
-    var nextButton = document.getElementById("next-button");
-    var saveButton = document.getElementById("save-button");
-    showElement(previousButton);
-    hideElement(nextButton);
-    showElement(saveButton);
 }
 
 function termCheck() {
@@ -229,7 +191,7 @@ function termCheck() {
     }
   });
   if(differentTerms.size === 0) {
-    return true;
+    showWaitlistsTab();
   } else {
     var text = strings['alert.multipleTerms.text'];
     message = stringInterpolation(text, differentTerms.values().next().value, courseTermName);
@@ -240,7 +202,9 @@ function termCheck() {
       showCancelButton: true,
       confirmButtonText: strings['alert.multipleTerms.confirmText']
     }).then((result) => {
-      return result.isConfirmed;
+      if(result.isConfirmed) {
+        showWaitlistsTab();
+      }
     });
   }
 }
@@ -256,20 +220,8 @@ function stringInterpolation(message, ...vars) {
 
 document.addEventListener("DOMContentLoaded", () => {
   var form = document.querySelector("form");
-  // TODO: split javascript into one file per page
-  if(form.id === "sectionManagementForm") {
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      if(termCheck()) {
-        showLoadingIcon(event.submitter);
-        disableButtons();
-        form.submit();
-      }
-    });
-  } else {
-    form.addEventListener("submit", (event) => {
-      showLoadingIcon(event.submitter);
-      disableButtons();
-    });
-  }
+  form.addEventListener("submit", (event) => {
+    showLoadingIcon(event.submitter);
+    disableButtons();
+  });
 });

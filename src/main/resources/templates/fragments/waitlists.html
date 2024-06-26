@@ -26,6 +26,11 @@
                    th:text="#{waitlists.sectionLabel(${section.getSisId}, ${section.getWaitlistStudents})}"></label>
         </li>
     </ul>
+    <div class="mt-4">
+        <a id="previous-button" class="btn btn-primary" th:text="#{index.previousButton}"
+           onclick="showAddRemoveSectionTab()">Previous</a>
+        <a id="next-button" class="btn btn-primary" th:text="#{index.nextButton}" onclick="showValidateTab()">Next</a>
+    </div>
 </div>
 </body>
 </html>

@@ -32,6 +32,11 @@
         <li th:each="section : ${waitlistedSectionsToRemove}"
             th:text="#{validate.removeWaitlists.section(${section.sisSectionId})}"></li>
     </ul>
+    <div class="mt-4">
+        <a id="previous-button" class="btn btn-primary" th:text="#{index.previousButton}"
+           onclick="showWaitlistsTab()">Previous</a>
+        <button id="save-button" type="submit" class="btn btn-primary" th:text="#{index.saveButton}">Save</button>
+    </div>
 </div>
 </body>
 </html>
