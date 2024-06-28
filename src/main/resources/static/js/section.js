@@ -78,6 +78,7 @@ function showAddRemoveSectionTab() {
     hideAllTabs();
     var tab = document.getElementById("tab-add-remove-sections");
     showElement(tab);
+    document.getElementById("addRemoveSectionsHeader").focus();
 }
 
 function showWaitlistsTab() {
@@ -99,6 +100,7 @@ function showWaitlistsTab() {
     });
     var tab = document.getElementById("tab-waitlists");
     showElement(tab);
+    document.getElementById("waitlistsHeader").focus();
 }
 
 function showValidateTab() {
@@ -178,6 +180,7 @@ function showValidateTab() {
     }
     var tab = document.getElementById("tab-validate");
     showElement(tab);
+    document.getElementById("validateHeader").focus();
 }
 
 function termCheck() {
