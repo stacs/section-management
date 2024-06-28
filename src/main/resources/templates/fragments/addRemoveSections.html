@@ -4,7 +4,8 @@
       xmlns:th="https://www.thymeleaf.org">
 <body>
 <div th:fragment="addRemoveSections">
-    <h2 class="mt-4" th:text="#{index.courseInfoHeader}">Course Information</h2>
+    <h2 id="addRemoveSectionsHeader" tabindex="-1" class="mt-4" th:text="#{index.courseInfoHeader}">Course
+        Information</h2>
     <p th:text="#{index.courseInfoDescription}">You are managing SIS sections for the following course:</p>
     <div th:utext="#{index.courseInfoCourseName(${courseName})}"></div>
     <div th:utext="#{index.courseInfoCourseCode(${courseCode})}"></div>
@@ -62,7 +63,9 @@
         </ul>
     </div>
     <div class="mt-4">
-        <a id="next-button" class="btn btn-primary" th:text="#{index.nextButton}" onclick="termCheck()">Next</a>
+        <button id="next-button" class="btn btn-primary" th:text="#{index.nextButton}" type="button"
+                onclick="termCheck()">Next
+        </button>
     </div>
 </div>
 </body>
