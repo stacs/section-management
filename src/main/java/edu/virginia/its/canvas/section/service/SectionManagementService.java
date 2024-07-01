@@ -62,8 +62,12 @@ public class SectionManagementService {
   }
 
   public List<Course> getUserCourses(String computingId) {
-    //    need to remove courses that arent valid, maybe by using isValidTerm
-    return canvasApi.getUsersTeachingCourses(computingId);
+    // Need to remove courses that arent valid, maybe by using isValidTerm
+    List<Course> courses = canvasApi.getUsersTeachingCourses(computingId);
+    // Remove duplicate courses from the list, because the way the Canvas API works
+    // we pull the users Teacher courses and then the users TA courses so there may be
+    // duplicates we need to trim
+    return courses.stream().distinct().toList();
   }
 
   public List<CanvasSection> getCanvasSectionsForCourses(List<Course> userCourses) {
