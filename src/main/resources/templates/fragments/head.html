@@ -2,7 +2,7 @@
 <html lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org">
-  <head th:fragment="head">
+<head th:fragment="head">
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title th:text="#{mainTitle}">Manage SIS Sections</title>
@@ -11,15 +11,19 @@
     <script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script th:inline="javascript">
-      /*<![CDATA[*/
-      var strings = new Array();
-      strings['button.loading'] = [[#{button.loading}]];
-      strings['button.loading.srText'] = [[#{button.loading.srText}]];
-      strings['alert.multipleTerms.title'] = [[#{alert.multipleTerms.title}]];
-      strings['alert.multipleTerms.text'] = [[#{alert.multipleTerms.text}]];
-      strings['alert.multipleTerms.confirmText'] = [[#{alert.multipleTerms.confirmText}]];
-      /*]]>*/
+        /*<![CDATA[*/
+        var strings = new Array();
+        strings['button.loading'] = [[#{button.loading}]];
+        strings['button.loading.srText'] = [[#{button.loading.srText}]];
+        strings['alert.multipleTerms.title'] = [[#{alert.multipleTerms.title}]];
+        strings['alert.multipleTerms.text'] = [[#{alert.multipleTerms.text}]];
+        strings['alert.multipleTerms.confirmText'] = [[#{alert.multipleTerms.confirmText}]];
+        strings['validate.addSections.section'] = [[#{validate.addSections.section}]];
+        strings['validate.removeSections.section'] = [[#{validate.removeSections.section}]];
+        strings['validate.addWaitlists.section'] = [[#{validate.addWaitlists.section}]];
+        strings['validate.removeWaitlists.section'] = [[#{validate.removeWaitlists.section}]];
+        /*]]>*/
     </script>
     <script type="text/javascript" th:src="@{/js/section.js}"></script>
-  </head>
+</head>
 </html>

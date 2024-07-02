@@ -9,30 +9,25 @@
     <input type="hidden" th:field="*{waitlistsToAdd}"/>
     <h2 id="validateHeader" tabindex="-1" th:text="#{validate.header}">Please confirm the following changes to
         your course site:</h2>
-    <h3 th:text="#{validate.addSections.header}">Add sections:</h3>
-    <div id="validateAddSections"></div>
-    <ul>
-        <li th:each="section : ${sectionsToAdd}"
-            th:text="#{validate.addSections.section(${section.sisSectionId}, ${section.totalStudents})}"></li>
-    </ul>
-    <h3 th:text="#{validate.removeSections.header}">Remove sections:</h3>
-    <div id="validateRemoveSections"></div>
-    <ul>
-        <li th:each="section : ${sectionsToRemove}"
-            th:text="#{validate.removeSections.section(${section.sisSectionId}, ${section.totalStudents})}"></li>
-    </ul>
-    <h3 th:text="#{validate.addWaitlists.header}">Include waitlists:</h3>
-    <div id="validateAddWaitlists"></div>
-    <ul>
-        <li th:each="section : ${waitlistedSectionsToAdd}"
-            th:text="#{validate.addWaitlists.section(${section.sisSectionId})}"></li>
-    </ul>
-    <h3 th:text="#{validate.removeWaitlists.header}">Remove waitlists:</h3>
-    <div id="validateRemoveWaitlists"></div>
-    <ul>
-        <li th:each="section : ${waitlistedSectionsToRemove}"
-            th:text="#{validate.removeWaitlists.section(${section.sisSectionId})}"></li>
-    </ul>
+    <div id="noChanges">
+        <p th:text="#{validate.noChanges}">No changes to your course site were detected.</p>
+    </div>
+    <div id="validateAddSections">
+        <h3 th:text="#{validate.addSections.header}">Add sections:</h3>
+        <div id="validateAddSectionsList"></div>
+    </div>
+    <div id="validateRemoveSections">
+        <h3 th:text="#{validate.removeSections.header}">Remove sections:</h3>
+        <div id="validateRemoveSectionsList"></div>
+    </div>
+    <div id="validateAddWaitlists">
+        <h3 th:text="#{validate.addWaitlists.header}">Include waitlists:</h3>
+        <div id="validateAddWaitlistsList"></div>
+    </div>
+    <div id="validateRemoveWaitlists">
+        <h3 th:text="#{validate.removeWaitlists.header}">Remove waitlists:</h3>
+        <div id="validateRemoveWaitlistsList"></div>
+    </div>
     <div class="mt-4">
         <button id="previous-button" class="btn btn-primary" th:text="#{index.previousButton}"
                 type="button" onclick="showWaitlistsTab()">Previous

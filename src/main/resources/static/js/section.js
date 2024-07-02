@@ -66,12 +66,10 @@ function hideAllTabs() {
 
 function hideElement(element) {
     element.style.display = 'none';
-    element.style.visibility = 'hidden';
 }
 
 function showElement(element) {
     element.style.display = '';
-    element.style.visibility = 'visible';
 }
 
 function showAddRemoveSectionTab() {
@@ -104,79 +102,104 @@ function showWaitlistsTab() {
 }
 
 function showValidateTab() {
+    var currentCourseSectionInputs = document.querySelectorAll('ul#currentCourseSections > li > input.form-check-input');
+    var sectionsToAddInputs = document.querySelectorAll('ul[id^="sections-to-add-from-term-"] > li > input.form-check-input');
+    var waitlistInputs = document.querySelectorAll('li[id^="waitlist-section-"]:not([style*="display: none"]) > input.form-check-input:not([disabled])');
     hideAllTabs();
     // Figure out what changes the user wants to make
     var sectionsToRemove = [];
-    var currentCourseSectionInputs = document.querySelectorAll('ul#currentCourseSections > li > input.form-check-input');
     currentCourseSectionInputs.forEach(input => {
         if(input.checked !== input.defaultChecked) {
-            sectionsToRemove.push(input.dataset.sectionSisId);
+            sectionsToRemove.push(input);
         }
     });
     var sectionsToAdd = [];
-    var sectionsToAddInputs = document.querySelectorAll('ul[id^="sections-to-add-from-term-"] > li > input.form-check-input');
     sectionsToAddInputs.forEach(input => {
         if(input.checked !== input.defaultChecked) {
-            sectionsToAdd.push(input.dataset.sectionSisId);
+            sectionsToAdd.push(input);
         }
     });
     var waitlistsToAdd = [];
     var waitlistsToRemove = [];
-    var waitlistInputs = document.querySelectorAll('li[id^="waitlist-section-"] > input.form-check-input:not([disabled])');
     waitlistInputs.forEach(input => {
         if(input.checked !== input.defaultChecked) {
             if(input.checked) {
-                waitlistsToAdd.push(input.dataset.sectionSisId);
+                waitlistsToAdd.push(input);
             } else {
-                waitlistsToRemove.push(input.dataset.sectionSisId);
+                waitlistsToRemove.push(input);
             }
         }
     });
 
     // Show the changes to make within the relevant HTML
-    if(sectionsToRemove.length > 0) {
-        var validateRemoveSections = document.getElementById("validateRemoveSections");
-        validateRemoveSections.innerHTML = "";
-        var ul = document.createElement("ul");
-        sectionsToRemove.forEach(section => {
-            var li = document.createElement("li");
-            li.innerHTML = section;
-            ul.appendChild(li);
-        });
-        validateRemoveSections.appendChild(ul);
-    }
-    if(sectionsToAdd.length > 0) {
-        var validateAddSections = document.getElementById("validateAddSections");
-        validateAddSections.innerHTML = "";
-        var ul = document.createElement("ul");
-        sectionsToAdd.forEach(section => {
-            var li = document.createElement("li");
-            li.innerHTML = section;
-            ul.appendChild(li);
-        });
-        validateAddSections.appendChild(ul);
-    }
-    if(waitlistsToAdd.length > 0) {
-        var validateAddWaitlists = document.getElementById("validateAddWaitlists");
-        validateAddWaitlists.innerHTML = "";
-        var ul = document.createElement("ul");
-        waitlistsToAdd.forEach(section => {
-            var li = document.createElement("li");
-            li.innerHTML = section;
-            ul.appendChild(li);
-        });
-        validateAddWaitlists.appendChild(ul);
-    }
-    if(waitlistsToRemove.length > 0) {
-        var validateRemoveWaitlists = document.getElementById("validateRemoveWaitlists");
-        validateRemoveWaitlists.innerHTML = "";
-        var ul = document.createElement("ul");
-        waitlistsToRemove.forEach(section => {
-            var li = document.createElement("li");
-            li.innerHTML = section;
-            ul.appendChild(li);
-        });
-        validateRemoveWaitlists.appendChild(ul);
+    var saveButton = document.getElementById("save-button");
+    var noChanges = document.getElementById("noChanges");
+    hideElement(noChanges);
+    var validateRemoveSections = document.getElementById("validateRemoveSections");
+    hideElement(validateRemoveSections);
+    var validateAddSections = document.getElementById("validateAddSections");
+    hideElement(validateAddSections);
+    var validateAddWaitlists = document.getElementById("validateAddWaitlists");
+    hideElement(validateAddWaitlists);
+    var validateRemoveWaitlists = document.getElementById("validateRemoveWaitlists");
+    hideElement(validateRemoveWaitlists);
+    if(sectionsToAdd.length === 0 && sectionsToRemove.length === 0 && waitlistsToAdd.length === 0 && waitlistsToRemove.length === 0) {
+        saveButton.disabled = true;
+        showElement(noChanges);
+    } else {
+        saveButton.disabled = false;
+        if(sectionsToRemove.length > 0) {
+            showElement(validateRemoveSections);
+            var validateRemoveSectionsList = document.getElementById("validateRemoveSectionsList");
+            validateRemoveSectionsList.innerHTML = "";
+            var ul = document.createElement("ul");
+            var sectionString = strings['validate.removeSections.section'];
+            sectionsToRemove.forEach(section => {
+                var li = document.createElement("li");
+                li.innerHTML = stringInterpolation(sectionString, section.dataset.sectionSisId, section.dataset.totalStudents);
+                ul.appendChild(li);
+            });
+            validateRemoveSectionsList.appendChild(ul);
+        }
+        if(sectionsToAdd.length > 0) {
+            showElement(validateAddSections);
+            var validateAddSectionsList = document.getElementById("validateAddSectionsList");
+            validateAddSectionsList.innerHTML = "";
+            var ul = document.createElement("ul");
+            var sectionString = strings['validate.addSections.section'];
+            sectionsToAdd.forEach(section => {
+                var li = document.createElement("li");
+                li.innerHTML = stringInterpolation(sectionString, section.dataset.sectionSisId, section.dataset.totalStudents);
+                ul.appendChild(li);
+            });
+            validateAddSectionsList.appendChild(ul);
+        }
+        if(waitlistsToAdd.length > 0) {
+            showElement(validateAddWaitlists);
+            var validateAddWaitlistsList = document.getElementById("validateAddWaitlistsList");
+            validateAddWaitlistsList.innerHTML = "";
+            var ul = document.createElement("ul");
+            var sectionString = strings['validate.addWaitlists.section'];
+            waitlistsToAdd.forEach(section => {
+                var li = document.createElement("li");
+                li.innerHTML = stringInterpolation(sectionString, section.dataset.sectionSisId);
+                ul.appendChild(li);
+            });
+            validateAddWaitlistsList.appendChild(ul);
+        }
+        if(waitlistsToRemove.length > 0) {
+            showElement(validateAddWaitlists);
+            var validateRemoveWaitlistsList = document.getElementById("validateRemoveWaitlistsList");
+            validateRemoveWaitlistsList.innerHTML = "";
+            var ul = document.createElement("ul");
+            var sectionString = strings['validate.removeWaitlists.section'];
+            waitlistsToRemove.forEach(section => {
+                var li = document.createElement("li");
+                li.innerHTML = stringInterpolation(sectionString, section.dataset.sectionSisId);;
+                ul.appendChild(li);
+            });
+            validateRemoveWaitlistsList.appendChild(ul);
+        }
     }
     var tab = document.getElementById("tab-validate");
     showElement(tab);
