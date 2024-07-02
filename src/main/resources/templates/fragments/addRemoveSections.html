@@ -21,7 +21,7 @@
                 <input th:id="'section-input-' + ${section.id}" type="checkbox"
                        th:field="*{sectionsToKeep}" th:value="${section.id}"
                        th:disabled="${section.isCrosslisted == false}" class="form-check-input"
-                       th:attr="data-section-sis-id=${section.getSisId}"/>
+                       th:attr="data-section-sis-id=${section.getSisId},data-total-students=${section.getTotalStudents}"/>
                 <label th:if="${section.isWaitlist}"
                        th:for="'section-input-' + ${section.id}" class="form-check-label"
                        th:text="#{index.addedSectionLabelWaitlistEnabled(${section.sisId}, ${section.totalStudents})}">Section
@@ -55,7 +55,7 @@
             <li class="form-check" th:each="section : ${sectionMap.value}">
                 <input th:id="'section-input-' + ${section.id}" type="checkbox"
                        th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"
-                       th:attr="data-section-sis-id=${section.getSisId},data-term=${section.getTerm.getName}"/>
+                       th:attr="data-section-sis-id=${section.getSisId},data-term=${section.getTerm.getName},data-total-students=${section.getTotalStudents}"/>
                 <label th:for="'section-input-' + ${section.id}" class="form-check-label"
                        th:text="#{index.addSectionLabel(${section.sisId}, ${section.totalStudents})}">Section
                     Label</label>
