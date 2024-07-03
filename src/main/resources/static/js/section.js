@@ -188,7 +188,7 @@ function showValidateTab() {
             validateAddWaitlistsList.appendChild(ul);
         }
         if(waitlistsToRemove.length > 0) {
-            showElement(validateAddWaitlists);
+            showElement(validateRemoveWaitlists);
             var validateRemoveWaitlistsList = document.getElementById("validateRemoveWaitlistsList");
             validateRemoveWaitlistsList.innerHTML = "";
             var ul = document.createElement("ul");

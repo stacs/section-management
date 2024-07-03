@@ -205,7 +205,7 @@ public class SectionManagementController {
         .filter(
             section ->
                 !section.isWaitlist()
-                    && sectionManagementForm.getWaitlistsToAdd().contains(section.getId()))
+                    && sectionManagementForm.getWaitlistsToAdd().contains(section.getSisId()))
         .toList();
   }
 
@@ -216,7 +216,7 @@ public class SectionManagementController {
         .filter(
             section ->
                 section.isWaitlist()
-                    && !sectionManagementForm.getWaitlistsToAdd().contains(section.getId()))
+                    && !sectionManagementForm.getWaitlistsToAdd().contains(section.getSisId()))
         .toList();
   }
 }
