@@ -124,15 +124,6 @@ public class SectionManagementService {
     if (ObjectUtils.isEmpty(sisTermId)) {
       return false;
     }
-    try {
-      int sisTermIdInt = Integer.parseInt(sisTermId);
-      if (sisTermIdInt >= 2000) {
-        return false;
-      }
-    } catch (NumberFormatException ex) {
-      log.warn("Error while parsing sisTermId '{}'", sisTermId, ex);
-      return false;
-    }
-    return true;
+    return !sisTermId.equals("9999") && !sisTermId.equals("9997");
   }
 }
