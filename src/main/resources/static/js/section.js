@@ -79,8 +79,19 @@ function showAddRemoveSectionTab() {
     document.getElementById("addRemoveSectionsHeader").focus();
 }
 
-function showWaitlistsTab() {
-    var inputList = document.querySelectorAll('[id^="section-input"]:checked');
+function showWaitlistsTab(buttonId) {
+    var inputList = document.querySelectorAll('input[id^="section-input"][data-waitlist-data-found="true"]:checked');
+    // If no valid waitlists are selected/found then we skip that page, this way departments/schools (such as Wise) that
+    // don't use waitlists can still use the section portions of the tool
+    if(inputList.length === 0) {
+        if(buttonId === "sections-next-button") {
+            showValidateTab();
+        } else {
+            showAddRemoveSectionTab();
+        }
+        return;
+    }
+
     var sections = [];
     inputList.forEach(input => {
         sections.push(input.value);
@@ -206,7 +217,7 @@ function showValidateTab() {
     document.getElementById("validateHeader").focus();
 }
 
-function termCheck() {
+function termCheck(buttonId) {
   var courseTermName = document.getElementById("course-term-name").value;
   var rostersToCrosslist = document.querySelectorAll("input:checked[data-term]");
   var differentTerms = new Set();
@@ -217,7 +228,7 @@ function termCheck() {
     }
   });
   if(differentTerms.size === 0) {
-    showWaitlistsTab();
+    showWaitlistsTab(buttonId);
   } else {
     var text = strings['alert.multipleTerms.text'];
     message = stringInterpolation(text, differentTerms.values().next().value, courseTermName);
@@ -229,7 +240,7 @@ function termCheck() {
       confirmButtonText: strings['alert.multipleTerms.confirmText']
     }).then((result) => {
       if(result.isConfirmed) {
-        showWaitlistsTab();
+        showWaitlistsTab(buttonId);
       }
     });
   }
