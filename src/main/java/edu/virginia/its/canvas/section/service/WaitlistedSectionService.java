@@ -67,11 +67,12 @@ public class WaitlistedSectionService {
     }
     List<SisSection> sectionsWithWaitlistStatus =
         boomiApi.getWaitlistStatusForSections(sectionsStatusList);
-    if (sectionsWithWaitlistStatus.isEmpty()) {
-      log.error(
+    List<SisSection> sisSections = new ArrayList<>(sectionsWithWaitlistStatus);
+    if (sisSections.isEmpty()) {
+      log.warn(
           "Received empty/bad response when attempting to get waitlist status for the following sections: {}",
           canvasSections);
     }
-    return sectionsWithWaitlistStatus;
+    return sisSections;
   }
 }

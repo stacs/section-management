@@ -55,7 +55,8 @@
             <li class="form-check" th:each="section : ${sectionMap.value}">
                 <input th:id="'section-input-' + ${section.id}" type="checkbox"
                        th:field="*{sectionsToAdd}" th:value="${section.id}" class="form-check-input"
-                       th:attr="data-section-sis-id=${section.getSisId},data-term=${section.getTerm.getName},data-total-students=${section.getTotalStudents}"/>
+                       th:attr="data-section-sis-id=${section.getSisId},data-term=${section.getTerm.getName},
+                       data-total-students=${section.getTotalStudents},data-waitlist-data-found=${section.isWaitlistDataFound}"/>
                 <label th:for="'section-input-' + ${section.id}" class="form-check-label"
                        th:text="#{index.addSectionLabel(${section.sisId}, ${section.totalStudents})}">Section
                     Label</label>
@@ -63,8 +64,8 @@
         </ul>
     </div>
     <div class="mt-4">
-        <button id="next-button" class="btn btn-primary" th:text="#{index.nextButton}" type="button"
-                onclick="termCheck()">Next
+        <button id="sections-next-button" class="btn btn-primary" th:text="#{index.nextButton}" type="button"
+                onclick="termCheck(this.id)">Next
         </button>
     </div>
 </div>
