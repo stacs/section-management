@@ -70,9 +70,9 @@ public class SectionManagementController {
     model.addAttribute("allSections", usersTeachingSections);
     model.addAttribute("currentCourseSections", sectionsInCurrentCourse);
 
-    // TODO: make sure terms are sorted by sis term id in the template
-    Map<TermDTO, List<SectionDTO>> sectionsMap =
+    Map<TermDTO, List<SectionDTO>> unsortedSectionsMap =
         sectionsInOtherCourses.stream().collect(groupingBy(SectionDTO::getTerm));
+    Map<TermDTO, List<SectionDTO>> sectionsMap = new TreeMap<>(unsortedSectionsMap);
 
     model.addAttribute("sectionsMap", sectionsMap);
 
