@@ -40,9 +40,14 @@ public class SectionManagementService {
   public List<SectionDTO> getUsersTeachingSections(String computingId) {
     List<SectionDTO> sectionDTOS = new ArrayList<>();
     List<Course> userCourses = getUserCourses(computingId);
+    // Both these maps are used to store term lookups so we can tell what term a section is
+    // associated with.
+    // TODO: might be better to get the terms via the Terms API?
     Map<String, Term> courseSisIdToTermMap = new HashMap<>();
+    Map<String, Term> termSisIdToTermMap = new HashMap<>();
     for (Course course : userCourses) {
       courseSisIdToTermMap.put(course.sisCourseId(), course.term());
+      termSisIdToTermMap.put(course.term().sisTermId(), course.term());
     }
     List<CanvasSection> canvasSections = getCanvasSectionsForCourses(userCourses);
     List<SisSection> sisSections =
@@ -54,7 +59,17 @@ public class SectionManagementService {
     sisSections.sort(Comparator.comparing(SisSection::getSisSectionId));
     for (CanvasSection canvasSection : canvasSections) {
       SisSection sisSection = sectionSisIdToSisSectionMap.get(canvasSection.sisSectionId());
-      Term term = courseSisIdToTermMap.get(canvasSection.sisCourseId());
+      Term term = null;
+      // The first part of both Charlottesville and Wise sections is the term
+      if (canvasSection.sisSectionId() != null) {
+        String[] sectionTerm = canvasSection.sisSectionId().split("_");
+        if (sectionTerm.length > 0) {
+          term = termSisIdToTermMap.get(sectionTerm[0]);
+        }
+      }
+      if (term == null) {
+        term = courseSisIdToTermMap.get(canvasSection.sisCourseId());
+      }
       SectionDTO sectionDTO = sectionMapper.from(canvasSection, sisSection, term);
       sectionDTOS.add(sectionDTO);
     }
