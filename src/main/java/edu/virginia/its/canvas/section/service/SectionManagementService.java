@@ -37,9 +37,8 @@ public class SectionManagementService {
     return canvasApi.getCourse(courseId);
   }
 
-  public List<SectionDTO> getUsersTeachingSections(String computingId) {
+  public List<SectionDTO> getUsersTeachingSections(List<Course> userCourses) {
     List<SectionDTO> sectionDTOS = new ArrayList<>();
-    List<Course> userCourses = getUserCourses(computingId);
     // Both these maps are used to store term lookups so we can tell what term a section is
     // associated with.
     // TODO: might be better to get the terms via the Terms API?
@@ -120,11 +119,17 @@ public class SectionManagementService {
   public boolean removeUserFromCourse(String computingId, String courseId) {
     List<Enrollment> enrollments = canvasApi.getCourseEnrollments(courseId);
     for (Enrollment enrollment : enrollments) {
-      if ("TeacherEnrollment".equals(enrollment.role())
+      if (("TeacherEnrollment".equals(enrollment.role())
+              || "TaEnrollment".equals(enrollment.role()))
           && computingId.equals(enrollment.sisUserId())) {
         try {
           canvasApi.deleteUserEnrollment(courseId, enrollment.id());
         } catch (Exception ex) {
+          log.error(
+              "There was an error attempting to remove user '{}' from course '{}'",
+              computingId,
+              courseId,
+              ex);
           return false;
         }
       }

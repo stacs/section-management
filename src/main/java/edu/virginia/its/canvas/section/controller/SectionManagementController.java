@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 
 import edu.virginia.its.canvas.lti.util.CanvasAuthenticationToken;
 import edu.virginia.its.canvas.lti.util.Constants;
+import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.Course;
 import edu.virginia.its.canvas.section.model.SectionDTO;
 import edu.virginia.its.canvas.section.model.SectionManagementForm;
@@ -15,6 +16,7 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,8 +55,9 @@ public class SectionManagementController {
     model.addAttribute("courseCode", currentCourse.courseCode());
     model.addAttribute("courseTermName", currentCourse.term().name());
 
+    List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
     List<SectionDTO> usersTeachingSections =
-        sectionManagementService.getUsersTeachingSections(computingId);
+        sectionManagementService.getUsersTeachingSections(userCourses);
     List<SectionDTO> sectionsInCurrentCourse =
         usersTeachingSections.stream()
             .filter(sectionDTO -> courseId.equals(sectionDTO.getCourseId()))
@@ -101,8 +104,9 @@ public class SectionManagementController {
     CanvasAuthenticationToken token = CanvasAuthenticationToken.getToken();
     String courseId = token.getCustomValue(Constants.COURSE_ID_CUSTOM_KEY);
     String computingId = token.getCustomValue(Constants.USERNAME_CUSTOM_KEY);
+    List<Course> userCourses = sectionManagementService.getUserCourses(computingId);
     List<SectionDTO> usersTeachingSections =
-        sectionManagementService.getUsersTeachingSections(computingId);
+        sectionManagementService.getUsersTeachingSections(userCourses);
     List<SectionDTO> sectionsInCurrentCourse =
         usersTeachingSections.stream()
             .filter(sectionDTO -> courseId.equals(sectionDTO.getCourseId()))
@@ -164,6 +168,23 @@ public class SectionManagementController {
       model.addAttribute("waitlistedSectionsToRemove", waitlistedSectionsToRemove);
     }
 
+    if (sectionManagementForm.isEmptyCourseRemoval()) {
+      List<Course> coursesToRemoveUserFrom = getCoursesToRemoveUserFrom(userCourses, sectionsToAdd);
+      List<Course> successfulCourseRemoval = new ArrayList<>();
+      List<Course> failedCourseRemoval = new ArrayList<>();
+      for (Course course : coursesToRemoveUserFrom) {
+        boolean success = sectionManagementService.removeUserFromCourse(computingId, course.id());
+        if (success) {
+          log.info("User '{}' was removed from course '{}'", computingId, course.id());
+          successfulCourseRemoval.add(course);
+        } else {
+          failedCourseRemoval.add(course);
+        }
+      }
+      model.addAttribute("successfulCourseRemoval", successfulCourseRemoval);
+      model.addAttribute("failedCourseRemoval", failedCourseRemoval);
+    }
+
     return "success";
   }
 
@@ -186,16 +207,29 @@ public class SectionManagementController {
   }
 
   private List<Course> getCoursesToRemoveUserFrom(
-      List<Course> userCourses,
-      List<SectionDTO> allCanvasSections,
-      SectionManagementForm sectionManagementForm) {
-    List<SectionDTO> sectionsToAdd = getSectionsToAdd(allCanvasSections, sectionManagementForm);
-    return userCourses.stream()
-        .filter(
-            course ->
-                sectionsToAdd.stream()
-                    .anyMatch(section -> section.getCourseId().equals(course.id())))
-        .toList();
+      List<Course> userCourses, List<SectionDTO> addedSections) {
+    List<Course> coursesToRemoveUserFrom = new ArrayList<>();
+    // Get the list of potential courses to remove the user from, then we pull the sections for
+    // those courses in order to see if they have any other sis sections in them, if not we remove
+    // them from the course.
+    List<Course> coursesToCheck =
+        userCourses.stream()
+            .filter(
+                course ->
+                    addedSections.stream()
+                        .anyMatch(section -> section.getCourseId().equals(course.id())))
+            .toList();
+    for (Course course : coursesToCheck) {
+      List<CanvasSection> sections =
+          sectionManagementService.getCanvasSectionsForCourses(List.of(course));
+      boolean removeCourse =
+          sections.stream().allMatch(section -> ObjectUtils.isEmpty(section.sisSectionId()));
+      if (removeCourse) {
+        coursesToRemoveUserFrom.add(course);
+      }
+    }
+
+    return coursesToRemoveUserFrom;
   }
 
   private List<SectionDTO> getWaitlistSectionsToAdd(

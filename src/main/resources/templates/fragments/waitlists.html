@@ -27,11 +27,11 @@
         </li>
     </ul>
     <div class="mt-4">
-        <button id="previous-button" class="btn btn-primary" th:text="#{index.previousButton}"
+        <button id="previousButtonWaitlists" class="btn btn-primary" th:text="#{index.previousButton}"
                 type="button" onclick="showAddRemoveSectionTab()">Previous
         </button>
-        <button id="next-button" class="btn btn-primary" th:text="#{index.nextButton}" type="button"
-                onclick="showValidateTab()">Next
+        <button id="nextButtonWaitlists" class="btn btn-primary" th:text="#{index.nextButton}" type="button"
+                onclick="showEmptyCourseRemovalTab(this.id)">Next
         </button>
     </div>
 </div>

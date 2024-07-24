@@ -17,6 +17,8 @@
       method="post">
     <input id="course-term-name" type="hidden" th:value="${courseTermName}"/>
     <div th:insert="fragments/addRemoveSections :: addRemoveSections" id="tab-add-remove-sections"></div>
+    <div th:insert="fragments/emptyCourseRemoval :: emptyCourseRemoval" style="display: none"
+         id="tab-empty-course-removal"></div>
     <div th:insert="fragments/waitlists :: waitlists" style="display: none" id="tab-waitlists"></div>
     <div th:insert="fragments/validate :: validate" style="display: none" id="tab-validate"></div>
 </form>

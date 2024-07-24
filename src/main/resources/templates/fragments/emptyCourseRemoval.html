@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
+<body>
+<div th:fragment="emptyCourseRemoval">
+    <h2 id="emptyCourseRemovalHeader" tabindex="-1" th:text="#{emptyCourseRemoval.header}"></h2>
+    <p th:utext="#{emptyCourseRemoval.description(${courseName})}"></p>
+    <input id="emptyCourseRemoval" type="checkbox" class="form-check-input" th:field="*{emptyCourseRemoval}"/>
+    <label for="emptyCourseRemoval" class="form-check-label" th:utext="#{emptyCourseRemoval.label}"></label>
+    <div class="mt-4">
+        <button id="previousButtonCourseRemoval" class="btn btn-primary" th:text="#{index.previousButton}"
+                type="button" onclick="showWaitlistsTab(this.id)">Previous
+        </button>
+        <button id="nextButtonEmptyCourseRemoval" class="btn btn-primary" th:text="#{index.nextButton}" type="button"
+                onclick="showValidateTab()">Next
+        </button>
+    </div>
+</div>
+</body>
+</html>

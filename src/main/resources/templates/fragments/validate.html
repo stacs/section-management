@@ -28,9 +28,15 @@
         <h3 th:text="#{validate.removeWaitlists.header}">Remove waitlists:</h3>
         <div id="validateRemoveWaitlistsList"></div>
     </div>
+    <div id="validateAdditionalDetails">
+        <h3 th:text="#{validate.additionalDetails.header}">Additional details</h3>
+        <ul>
+            <li th:text="#{validate.emptyCourseRemoval}">Remove self from empty courses</li>
+        </ul>
+    </div>
     <div class="mt-4">
-        <button id="validate-previous-button" class="btn btn-primary" th:text="#{index.previousButton}"
-                type="button" onclick="showWaitlistsTab(this.id)">Previous
+        <button id="previousButtonValidate" class="btn btn-primary" th:text="#{index.previousButton}"
+                type="button" onclick="showEmptyCourseRemovalTab(this.id)">Previous
         </button>
         <button id="save-button" type="submit" class="btn btn-primary" th:text="#{index.saveButton}">Save</button>
     </div>

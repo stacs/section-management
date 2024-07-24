@@ -84,8 +84,8 @@ function showWaitlistsTab(buttonId) {
     // If no valid waitlists are selected/found then we skip that page, this way departments/schools (such as Wise) that
     // don't use waitlists can still use the section portions of the tool
     if(inputList.length === 0) {
-        if(buttonId === "sections-next-button") {
-            showValidateTab();
+        if(buttonId.startsWith("nextButton")) {
+            showEmptyCourseRemovalTab(buttonId);
         } else {
             showAddRemoveSectionTab();
         }
@@ -112,10 +112,34 @@ function showWaitlistsTab(buttonId) {
     document.getElementById("waitlistsHeader").focus();
 }
 
+function showEmptyCourseRemovalTab(buttonId) {
+    hideAllTabs();
+    var sectionsToAddInputs = document.querySelectorAll('ul[id^="sections-to-add-from-term-"] > li > input.form-check-input');
+    var sectionsToAdd = [];
+    sectionsToAddInputs.forEach(input => {
+        if(input.checked !== input.defaultChecked) {
+            sectionsToAdd.push(input);
+        }
+    });
+    // If no sections are being added (thus being removed from other courses) then we skip this tab
+    if(sectionsToAdd.length > 0) {
+        var tab = document.getElementById("tab-empty-course-removal");
+        showElement(tab);
+        document.getElementById("emptyCourseRemovalHeader").focus();
+    } else {
+        if(buttonId.startsWith("nextButton")) {
+            showValidateTab();
+        } else {
+            showWaitlistsTab(buttonId);
+        }
+    }
+}
+
 function showValidateTab() {
     var currentCourseSectionInputs = document.querySelectorAll('ul#currentCourseSections > li > input.form-check-input');
     var sectionsToAddInputs = document.querySelectorAll('ul[id^="sections-to-add-from-term-"] > li > input.form-check-input');
     var waitlistInputs = document.querySelectorAll('li[id^="waitlist-section-"]:not([style*="display: none"]) > input.form-check-input:not([disabled])');
+    var removeEmptyCourses = document.getElementById('emptyCourseRemoval').checked;
     hideAllTabs();
     // Figure out what changes the user wants to make
     var sectionsToRemove = [];
@@ -154,6 +178,8 @@ function showValidateTab() {
     hideElement(validateAddWaitlists);
     var validateRemoveWaitlists = document.getElementById("validateRemoveWaitlists");
     hideElement(validateRemoveWaitlists);
+    var validateAdditionalDetails = document.getElementById("validateAdditionalDetails");
+    hideElement(validateAdditionalDetails);
     if(sectionsToAdd.length === 0 && sectionsToRemove.length === 0 && waitlistsToAdd.length === 0 && waitlistsToRemove.length === 0) {
         saveButton.disabled = true;
         showElement(noChanges);
@@ -210,6 +236,9 @@ function showValidateTab() {
                 ul.appendChild(li);
             });
             validateRemoveWaitlistsList.appendChild(ul);
+        }
+        if(sectionsToAdd.length > 0 && removeEmptyCourses) {
+            showElement(validateAdditionalDetails);
         }
     }
     var tab = document.getElementById("tab-validate");

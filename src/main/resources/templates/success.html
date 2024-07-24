@@ -36,12 +36,21 @@
             th:text="#{success.removeWaitlists.section(${section.sisId})}"></li>
     </ul>
 </div>
-<div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors)}">
+<div th:unless="${#lists.isEmpty(successfulCourseRemoval)}">
+    <h3 th:text="#{success.courseRemoval.header}"></h3>
+    <ul>
+        <li th:each="course : ${successfulCourseRemoval}"
+            th:text="#{success.courseRemoval.course(${course.sisCourseId})}"></li>
+    </ul>
+</div>
+<div th:unless="${#lists.isEmpty(sectionsToAddErrors) && #lists.isEmpty(sectionsToRemoveErrors) && #lists.isEmpty(failedCourseRemoval)}">
     <h3 th:text="#{success.errors.header}">The following errors occurred:</h3>
     <ul>
         <li th:each="section : ${sectionsToAddErrors}" th:text="#{success.errors.addSection(${section.sisId})}"></li>
         <li th:each="section : ${sectionsToRemoveErrors}"
             th:text="#{success.errors.removeSection(${section.sisId})}"></li>
+        <li th:each="course : ${failedCourseRemoval}"
+            th:text="#{success.errors.courseRemoval(${course.sisCourseId})}"></li>
     </ul>
 </div>
 <button th:onclick="'window.location.href = \'' + @{/launch} + '\''" class="btn btn-primary"

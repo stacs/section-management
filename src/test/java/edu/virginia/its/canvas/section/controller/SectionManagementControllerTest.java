@@ -1,6 +1,7 @@
 package edu.virginia.its.canvas.section.controller;
 
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -173,7 +174,7 @@ class SectionManagementControllerTest {
     sectionDTOS.add(section6);
 
     when(sectionManagementService.getCourse("123")).thenReturn(course);
-    when(sectionManagementService.getUsersTeachingSections(username)).thenReturn(sectionDTOS);
+    when(sectionManagementService.getUsersTeachingSections(anyList())).thenReturn(sectionDTOS);
     this.mockMvc
         .perform(get("/index"))
         .andExpect(status().isOk())
