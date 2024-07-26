@@ -1,21 +1,19 @@
 package edu.virginia.its.canvas.section;
 
-import edu.virginia.its.canvas.lti.util.RoleMapper;
+import edu.virginia.its.canvas.section.utils.roles.EnrollmentRoleMapper;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import uk.ac.ox.ctl.lti13.Lti13Configurer;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-  private final RoleMapper roleMapper;
+  private final EnrollmentRoleMapper enrollmentRoleMapper;
 
-  public SecurityConfig(RoleMapper roleMapper) {
-    this.roleMapper = roleMapper;
+  public SecurityConfig(EnrollmentRoleMapper enrollmentRoleMapper) {
+    this.enrollmentRoleMapper = enrollmentRoleMapper;
   }
 
   @Bean
@@ -32,8 +30,10 @@ public class SecurityConfig {
             "/error")
         .permitAll()
         .antMatchers("/**")
-        .hasRole("INSTRUCTOR");
-    Lti13Configurer lti13Configurer = new Lti13Configurer().grantedAuthoritiesMapper(roleMapper);
+        .access(
+            "!hasAnyRole('STUDENT', 'OBSERVER', 'LIBRARIAN', 'DESIGNER') and hasAnyRole('INSTRUCTOR', 'TA')");
+    Lti13Configurer lti13Configurer =
+        new Lti13Configurer().grantedAuthoritiesMapper(enrollmentRoleMapper);
     http.apply(lti13Configurer);
     return http.build();
   }

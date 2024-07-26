@@ -7,14 +7,15 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class SectionDTO {
   private String id;
   private String sisId;
   private String name;
   private String courseId;
   private String courseSisId;
-  private TermDTO term;
-  private int totalStudents;
+  @ToString.Exclude private TermDTO term;
+  @ToString.Exclude private int totalStudents;
   private boolean crosslisted;
   private String crosslistedCourseId;
   private boolean waitlistDataFound;

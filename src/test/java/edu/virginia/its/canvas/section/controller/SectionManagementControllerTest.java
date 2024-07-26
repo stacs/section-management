@@ -19,6 +19,8 @@ import edu.virginia.its.canvas.section.service.SectionManagementService;
 import edu.virginia.its.canvas.section.service.WaitlistedSectionService;
 import java.util.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,26 +53,28 @@ class SectionManagementControllerTest {
     this.mockMvc.perform(get("/config.json")).andExpect(status().isOk());
   }
 
-  @Test
-  void testController_userRole() throws Exception {
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "ROLE_USER",
+        "ROLE_STUDENT",
+        "ROLE_OBSERVER",
+        "ROLE_LIBRARIAN",
+        "ROLE_DESIGNER",
+        "ROLE_ADMIN"
+      })
+  void testController_badRoles(String role) throws Exception {
     List<String> roles = new ArrayList<>();
-    roles.add("ROLE_USER");
+    roles.add(role);
     SecurityContextHolder.getContext().setAuthentication(getToken(roles, "user", "123"));
     this.mockMvc.perform(get("/index")).andExpect(status().isForbidden());
   }
 
-  @Test
-  void testController_studentRole() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"ROLE_TA", "ROLE_INSTRUCTOR"})
+  void testController_goodRoles(String role) throws Exception {
     List<String> roles = new ArrayList<>();
-    roles.add("ROLE_STUDENT");
-    SecurityContextHolder.getContext().setAuthentication(getToken(roles, "user", "123"));
-    this.mockMvc.perform(get("/index")).andExpect(status().isForbidden());
-  }
-
-  @Test
-  void testController_instructorRole() throws Exception {
-    List<String> roles = new ArrayList<>();
-    roles.add("ROLE_INSTRUCTOR");
+    roles.add(role);
     String username = "user";
     String currentCourseId = "123";
     SecurityContextHolder.getContext()

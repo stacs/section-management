@@ -1,6 +1,6 @@
 package edu.virginia.its.canvas.section;
 
-import edu.virginia.its.canvas.lti.util.Constants;
+import edu.virginia.its.canvas.section.utils.Constants;
 import edu.virginia.lts.canvas.Config;
 import edu.virginia.lts.canvas.Extension;
 import edu.virginia.lts.canvas.Placement;
@@ -34,6 +34,7 @@ public class CanvasJsonConfig {
             .messageType(Placement.LTI_RESOURCE_LINK_REQUEST)
             .customField(Constants.USERNAME_CUSTOM_KEY, "$Canvas.user.sisSourceId")
             .customField(Constants.COURSE_ID_CUSTOM_KEY, "$Canvas.course.id")
+            .customField(Constants.ROLES_CUSTOM_KEY, "$Canvas.membership.roles")
             // Add a space to the start of the text so the icon and text are spaced apart a bit.
             .text(" Manage SIS Sections")
             .iconUrl(appUrl + "/icons/users-solid.svg")
