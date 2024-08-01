@@ -4,8 +4,6 @@
       xmlns:th="https://www.thymeleaf.org">
 <body>
 <div th:fragment="waitlists">
-    <input type="hidden" th:field="*{sectionsToAdd}"/>
-    <input type="hidden" th:field="*{sectionsToKeep}"/>
     <h2 id="waitlistsHeader" tabindex="-1" th:text="#{waitlists.header}">Manage Waitlisted Students</h2>
     <p th:text="#{waitlists.description1}">Select sections to add any waitlisted students in the corresponding rosters
         to the course site. Deselect sections to remove the waitlisted students.</p>

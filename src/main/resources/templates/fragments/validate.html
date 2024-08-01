@@ -4,9 +4,6 @@
       xmlns:th="https://www.thymeleaf.org">
 <body>
 <div th:fragment="validate">
-    <input type="hidden" th:field="*{sectionsToAdd}"/>
-    <input type="hidden" th:field="*{sectionsToKeep}"/>
-    <input type="hidden" th:field="*{waitlistsToAdd}"/>
     <h2 id="validateHeader" tabindex="-1" th:text="#{validate.header}">Please confirm the following changes to
         your course site:</h2>
     <div id="noChanges">
