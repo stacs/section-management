@@ -7,6 +7,8 @@ import edu.virginia.its.canvas.section.model.BoomiResponses.SisSection;
 import edu.virginia.its.canvas.section.model.CanvasResponses.CanvasSection;
 import edu.virginia.its.canvas.section.model.SectionDTO;
 import edu.virginia.its.canvas.section.utils.SectionUtils;
+import edu.virginia.its.canvas.section.utils.TermUtils;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -58,10 +60,13 @@ public class WaitlistedSectionService {
 
   public List<SisSection> getWaitlistStatusForSections(List<CanvasSection> canvasSections) {
     List<CanvasWaitlistStatus> sectionsStatusList = new ArrayList<>();
+    String currentTerm = TermUtils.getCurrentTerm(LocalDate.now());
     for (CanvasSection canvasSection : canvasSections) {
       CanvasWaitlistStatus sectionStatus =
           SectionUtils.sectionIdToCanvasWaitlistStatus(canvasSection.sisSectionId());
-      if (sectionStatus != null) {
+      // We check the term here so we don't send to Boomi request for waitlist information on
+      // sections from the past.
+      if (sectionStatus != null && currentTerm.compareTo(sectionStatus.term()) <= 0) {
         sectionsStatusList.add(sectionStatus);
       }
     }

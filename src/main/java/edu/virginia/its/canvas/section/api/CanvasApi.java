@@ -40,6 +40,8 @@ public class CanvasApi {
     canvasApi = WebClient.builder().baseUrl(canvasApiUrl).build();
     canvasAuthorization = "Bearer " + canvasApiToken;
     requestTimeout = Duration.ofSeconds(canvasApiTimeout);
+    log.info("Canvas API URL: {}", canvasApiUrl);
+    log.info("Canvas API Timeout: {}", canvasApiTimeout);
   }
 
   public Course getCourse(String courseId) {
