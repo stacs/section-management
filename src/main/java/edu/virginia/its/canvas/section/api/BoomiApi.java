@@ -45,6 +45,8 @@ public class BoomiApi {
     objectMapper = new ObjectMapper();
     // Boomi expects the waitlist Boolean to be a String
     objectMapper.configOverride(Boolean.class).setFormat(JsonFormat.Value.forShape(Shape.STRING));
+    log.info("Boomi API URL: {}", boomiUrl);
+    log.info("Boomi API Timeout: {}", boomiApiTimeout);
   }
 
   public List<SisSection> getWaitlistStatusForSections(List<CanvasWaitlistStatus> sections) {

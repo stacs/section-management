@@ -27,6 +27,7 @@ ltitool:
   boomi:
     apiToken: ${boomi.apiToken}
     url: ${boomi.apiUrl}
+    apiTimeout: 60
   canvas:
     apiUrl: ${canvas.apiUrl}
     apiToken: ${canvas.apiToken}
