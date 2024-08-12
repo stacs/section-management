@@ -19,7 +19,7 @@ function selectTerm() {
 
 function selectAllSectionsForWaitlists() {
   var checkAll = document.getElementById("selectAllSectionsForWaitlistsButton").checked;
-  var inputList = document.querySelectorAll('[id^="waitlist-section-"]');
+  var inputList = document.querySelectorAll('li[id^="waitlist-section-"]:not(.hiddenElement) > input[id^="waitlist-section-"]');
   inputList.forEach(input => {
     input.checked = checkAll;
   });
@@ -66,10 +66,12 @@ function hideAllTabs() {
 
 function hideElement(element) {
     element.style.display = 'none';
+    element.classList.add('hiddenElement');
 }
 
 function showElement(element) {
     element.style.display = '';
+    element.classList.remove('hiddenElement');
 }
 
 function showAddRemoveSectionTab() {
