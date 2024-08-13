@@ -29,7 +29,7 @@ class BoomiApiTest {
     mockBackEnd = new MockWebServer();
     mockBackEnd.start();
     String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
-    boomiApi = new BoomiApi(baseUrl, 15);
+    boomiApi = new BoomiApi(baseUrl, 15, 5);
   }
 
   @AfterEach

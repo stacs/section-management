@@ -34,10 +34,7 @@ public class WaitlistedSectionService {
     }
     log.info(
         "User '{}' is enabling the following sections for waitlists: {}", computingId, sectionDTOS);
-    boolean success = boomiApi.updateWaitlistsForSections(sectionsList);
-    if (!success) {
-      log.error("Received error when sending waitlists to Boomi, waitlists were not enabled");
-    }
+    boomiApi.updateWaitlistsForSections(sectionsList);
   }
 
   public void removeWaitlistSections(String computingId, List<SectionDTO> sectionDTOS) {
@@ -52,10 +49,7 @@ public class WaitlistedSectionService {
         "User '{}' is disabling the following sections for waitlists: {}",
         computingId,
         sectionDTOS);
-    boolean success = boomiApi.updateWaitlistsForSections(sectionsList);
-    if (!success) {
-      log.error("Received error when sending waitlists to Boomi, waitlists were not disabled");
-    }
+    boomiApi.updateWaitlistsForSections(sectionsList);
   }
 
   public List<SisSection> getWaitlistStatusForSections(List<CanvasSection> canvasSections) {

@@ -16,6 +16,7 @@ ltitool:
   boomi:
     apiToken: 1234
     url: https://localhost
+    maxSectionsPerRequest: 5
   canvas:
     apiUrl: https://localhost/api/v1
     apiToken: 1234
