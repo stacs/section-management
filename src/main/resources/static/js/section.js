@@ -104,11 +104,17 @@ function showWaitlistsTab(buttonId) {
         hideElement(potentialWaitlist);
         potentialWaitlist.disabled = true;
     });
+    var selectAllCheckboxChecked = true;
     sections.forEach(section => {
         waitlistElement = document.getElementById("waitlist-section-" + section);
         showElement(waitlistElement);
         waitlistElement.disabled = false;
+        var waitlistElementInput = document.getElementById("waitlist-section-input-" + section);
+        if(!waitlistElementInput.checked) {
+            selectAllCheckboxChecked = false;
+        }
     });
+    document.getElementById("selectAllSectionsForWaitlistsButton").checked = selectAllCheckboxChecked;
     var tab = document.getElementById("tab-waitlists");
     showElement(tab);
     document.getElementById("waitlistsHeader").focus();
