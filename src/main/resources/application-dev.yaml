@@ -2,7 +2,3 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
-ltitool:
-  baseUrl: https://collab-test.its.virginia.edu
-  resetMessages: true

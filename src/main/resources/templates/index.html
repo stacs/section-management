@@ -3,12 +3,12 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org">
 <head>
-    <div th:replace="fragments/head :: head"></div>
+    <div th:replace="~{fragments/head :: head}"></div>
 </head>
 
 <body>
 <span id="sr-text" class="visually-hidden" aria-live="assertive"></span>
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 <p th:text="#{index.description}">By default, a course site and section are created in UVACanvas for each roster listed
     in the Student Information System (SIS).
     The Manage SIS Sections tool allows instructors to add or remove additional SIS sections in a single course site in
@@ -16,9 +16,9 @@
 <form id="sectionManagementForm" action="#" th:action="@{/apply-changes}" th:object="${sectionManagementForm}"
       method="post">
     <input id="course-term-name" type="hidden" th:value="${courseTermName}"/>
-    <div th:insert="fragments/addRemoveSections :: addRemoveSections" id="tab-add-remove-sections"></div>
-    <div th:insert="fragments/waitlists :: waitlists" style="display: none" id="tab-waitlists"></div>
-    <div th:insert="fragments/validate :: validate" style="display: none" id="tab-validate"></div>
+    <div th:insert="~{fragments/addRemoveSections :: addRemoveSections}" id="tab-add-remove-sections"></div>
+    <div th:insert="~{fragments/waitlists :: waitlists}" style="display: none" id="tab-waitlists"></div>
+    <div th:insert="~{fragments/validate :: validate}" style="display: none" id="tab-validate"></div>
 </form>
 </body>
 </html>

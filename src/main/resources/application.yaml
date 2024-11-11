@@ -1,12 +1,10 @@
 server:
   servlet:
-    context-path: /lts-section-management
+    context-path: ${context.path}
     session:
       timeout: 540m
 
 spring:
-  config:
-    import: optional:configtree:/run/secrets/
   datasource:
     url: ${db.url}
     username: ${db.user}
@@ -23,7 +21,7 @@ spring:
     active: local
 
 ltitool:
-  baseUrl: https://localhost
+  baseUrl: ${baseUrl}
   boomi:
     apiToken: ${boomi.apiToken}
     url: ${boomi.apiUrl}

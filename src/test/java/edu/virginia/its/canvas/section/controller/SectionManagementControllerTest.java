@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 
-import com.nimbusds.jose.shaded.json.JSONObject;
+import com.nimbusds.jose.shaded.gson.internal.LinkedTreeMap;
 import edu.virginia.its.canvas.lti.util.CanvasAuthenticationToken;
 import edu.virginia.its.canvas.lti.util.Constants;
 import edu.virginia.its.canvas.section.SectionManagementApplication;
@@ -230,7 +230,7 @@ class SectionManagementControllerTest {
     attributes.put("family_name", "myFamilyName");
     attributes.put("picture", "myPicture");
     attributes.put("locale", "en");
-    JSONObject customFields = new JSONObject();
+    Map<String, Object> customFields = new LinkedTreeMap<>();
     if (courseId != null) {
       customFields.put(Constants.COURSE_ID_CUSTOM_KEY, courseId);
     }

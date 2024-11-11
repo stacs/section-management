@@ -3,12 +3,12 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org">
 <head>
-    <div th:replace="fragments/head :: head"></div>
+    <div th:replace="~{fragments/head :: head}"></div>
 </head>
 
 <body>
 <span id="sr-text" class="visually-hidden" aria-live="assertive"></span>
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 <h2 th:text="#{success.header}">The following changes were made to your course:</h2>
 <div th:unless="${#lists.isEmpty(sectionsToAdd)}">
     <h3 th:text="#{success.addSections.header}">Sections added:</h3>
