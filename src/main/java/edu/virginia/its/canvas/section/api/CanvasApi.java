@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -107,7 +107,7 @@ public class CanvasApi {
         .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
-            HttpStatus::isError,
+            HttpStatusCode::isError,
             response -> {
               log.warn(
                   "Error crosslisting section '{}' into course '{}', status code given was '{}'",
@@ -127,7 +127,7 @@ public class CanvasApi {
         .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
-            HttpStatus::isError,
+            HttpStatusCode::isError,
             response -> {
               log.warn(
                   "Error de-crosslisting section '{}', status code given was '{}'",
@@ -162,7 +162,7 @@ public class CanvasApi {
         .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
-            HttpStatus::isError,
+            HttpStatusCode::isError,
             response -> {
               log.warn(
                   "Error removing enrollment '{}' from course '{}', status code given was '{}'",

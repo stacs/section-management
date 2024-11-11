@@ -3,15 +3,16 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org">
 <head>
-  <div th:replace="fragments/head :: head"></div>
+    <div th:replace="~{fragments/head :: head}"></div>
 </head>
 <body>
-  <p style="font-size: 24px;" th:text="#{loading.description1}">Loading your sections...</p>
-  <p th:text="#{loading.description2}">This may take a few moments.  Please do not refresh the page to allow the process to complete.</p>
-  <script type="text/javascript" th:inline="javascript">
+<p style="font-size: 24px;" th:text="#{loading.description1}">Loading your sections...</p>
+<p th:text="#{loading.description2}">This may take a few moments. Please do not refresh the page to allow the process to
+    complete.</p>
+<script type="text/javascript" th:inline="javascript">
     /*<![CDATA[*/
       window.location.href = /*[[@{/index}]]*/
     /*]]>*/
-  </script>
+</script>
 </body>
 </html>
