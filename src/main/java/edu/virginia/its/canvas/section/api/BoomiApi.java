@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -30,8 +31,7 @@ public class BoomiApi {
 
   private final Logger log = LoggerFactory.getLogger(BoomiApi.class);
 
-  @Value("${ltitool.boomi.apiToken}")
-  private String boomiApiToken;
+  private final String boomiApiToken;
 
   private final Integer maxSectionsPerRequest;
 
@@ -43,11 +43,13 @@ public class BoomiApi {
   public BoomiApi(
       @Value("${ltitool.boomi.url}") String boomiUrl,
       @Value("${ltitool.boomi.apiTimeout:15}") Integer boomiApiTimeout,
-      @Value("${ltitool.boomi.maxSectionsPerRequest:50}") Integer maxSectionsPerRequest) {
+      @Value("${ltitool.boomi.maxSectionsPerRequest:50}") Integer maxSectionsPerRequest,
+      Environment environment) {
     this.maxSectionsPerRequest = maxSectionsPerRequest;
     boomiApi = WebClient.create(boomiUrl);
     requestTimeout = Duration.ofSeconds(boomiApiTimeout);
     objectMapper = new ObjectMapper();
+    boomiApiToken = environment.getProperty("ltitool.boomi.apiToken");
     // Boomi expects the waitlist Boolean to be a String
     objectMapper.configOverride(Boolean.class).setFormat(JsonFormat.Value.forShape(Shape.STRING));
     log.info("Boomi API URL: {}", boomiUrl);

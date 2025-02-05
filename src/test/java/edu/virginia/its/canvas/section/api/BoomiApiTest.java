@@ -11,29 +11,37 @@ import java.nio.charset.Charset;
 import java.util.List;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.util.StreamUtils;
 
 @SpringBootTest
 class BoomiApiTest {
-  public MockWebServer mockBackEnd;
+  static MockWebServer mockBackEnd;
 
-  private BoomiApi boomiApi;
+  @Autowired private BoomiApi boomiApi;
 
-  @BeforeEach
-  public void init() throws IOException {
-    mockBackEnd = new MockWebServer();
-    mockBackEnd.start();
-    String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
-    boomiApi = new BoomiApi(baseUrl, 15, 5);
+  @Autowired Environment environment;
+
+  @DynamicPropertySource
+  static void setupUrl(DynamicPropertyRegistry registry) {
+    registry.add(
+        "ltitool.boomi.url", () -> String.format("http://localhost:%s", mockBackEnd.getPort()));
   }
 
-  @AfterEach
-  public void tearDown() throws IOException {
+  @BeforeAll
+  static void init() throws IOException {
+    mockBackEnd = new MockWebServer();
+    mockBackEnd.start();
+  }
+
+  @AfterAll
+  static void tearDown() throws IOException {
     mockBackEnd.shutdown();
   }
 
@@ -58,5 +66,6 @@ class BoomiApiTest {
     assertEquals("1238", sisSection.term());
     assertFalse(sisSection.hasWaitlist());
     assertEquals("1238_AAS_1010-100_CGAS", sisSection.getSisSectionId());
+    assertEquals("1234!#{aBCd", mockBackEnd.takeRequest().getHeader("X-API-KEY"));
   }
 }
