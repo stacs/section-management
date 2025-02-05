@@ -14,7 +14,7 @@ spring:
 ltitool:
   baseUrl: https://localhost
   boomi:
-    apiToken: 1234
+    apiToken: 1234!#{aBCd
     url: https://localhost
     maxSectionsPerRequest: 5
   canvas:
