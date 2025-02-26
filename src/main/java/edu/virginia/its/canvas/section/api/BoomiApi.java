@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Component
 public class BoomiApi {
@@ -74,6 +75,19 @@ public class BoomiApi {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(body)
                 .retrieve()
+                .onStatus(
+                    status -> !status.is2xxSuccessful(),
+                    clientResponse ->
+                        clientResponse
+                            .bodyToMono(String.class)
+                            .flatMap(
+                                responseString -> {
+                                  log.error(
+                                      "Error while attempting to get canvasWaitlistStatus: {} - {}",
+                                      clientResponse.statusCode(),
+                                      responseString);
+                                  return Mono.error(new RuntimeException("API error"));
+                                }))
                 .bodyToMono(JsonNode.class)
                 .map(s -> s.path("waitlists"))
                 .map(
