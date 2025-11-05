@@ -25,32 +25,35 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CanvasApi {
 
-  private final WebClient canvasApi;
-  private final String canvasAuthorization;
+  private final WebClient webClient;
   private final Duration requestTimeout;
 
   private static final String INCLUDE = "include[]";
   private static final String PER_PAGE = "per_page";
-  private static final String AUTHORIZATION = "Authorization";
 
   public CanvasApi(
       @Value("${ltitool.canvas.apiUrl}") String canvasApiUrl,
       @Value("${ltitool.canvas.apiToken}") String canvasApiToken,
       @Value("${ltitool.canvas.apiTimeout:15}") Integer canvasApiTimeout) {
-    canvasApi = WebClient.builder().baseUrl(canvasApiUrl).build();
-    canvasAuthorization = "Bearer " + canvasApiToken;
+    String toolName = this.getClass().getPackage().getImplementationTitle();
+    String toolVersion = this.getClass().getPackage().getImplementationVersion();
+    webClient =
+        WebClient.builder()
+            .baseUrl(canvasApiUrl)
+            .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + canvasApiToken)
+            .defaultHeader(HttpHeaders.USER_AGENT, toolName + ":" + toolVersion)
+            .build();
     requestTimeout = Duration.ofSeconds(canvasApiTimeout);
     log.info("Canvas API URL: {}", canvasApiUrl);
     log.info("Canvas API Timeout: {}", canvasApiTimeout);
   }
 
   public Course getCourse(String courseId) {
-    return canvasApi
+    return webClient
         .get()
         .uri(
             uriBuilder ->
                 uriBuilder.path("/courses/{id}").queryParam(INCLUDE, "term").build(courseId))
-        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .bodyToMono(Course.class)
         .block(requestTimeout);
@@ -97,14 +100,13 @@ public class CanvasApi {
   }
 
   public CanvasSection crosslistSection(String sectionId, String newCourseId) {
-    return canvasApi
+    return webClient
         .post()
         .uri(
             uriBuilder ->
                 uriBuilder
                     .path("/sections/{sectionId}/crosslist/{newCourseId}")
                     .build(sectionId, newCourseId))
-        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
             HttpStatusCode::isError,
@@ -121,10 +123,9 @@ public class CanvasApi {
   }
 
   public CanvasSection deCrosslistSection(String sectionId) {
-    return canvasApi
+    return webClient
         .delete()
         .uri(uriBuilder -> uriBuilder.path("/sections/{sectionId}/crosslist").build(sectionId))
-        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
             HttpStatusCode::isError,
@@ -151,7 +152,7 @@ public class CanvasApi {
   }
 
   public Enrollment deleteUserEnrollment(String courseId, String enrollmentId) {
-    return canvasApi
+    return webClient
         .delete()
         .uri(
             uriBuilder ->
@@ -159,7 +160,6 @@ public class CanvasApi {
                     .path("/courses/{courseId}/enrollments/{enrollmentId}")
                     .queryParam("task", "delete")
                     .build(courseId, enrollmentId))
-        .header(AUTHORIZATION, canvasAuthorization)
         .retrieve()
         .onStatus(
             HttpStatusCode::isError,
@@ -177,13 +177,7 @@ public class CanvasApi {
 
   private <T> void getPagedResponses(String uri, Class<T[]> objectClass, List<T> results) {
     ResponseEntity<T[]> response =
-        canvasApi
-            .get()
-            .uri(uri)
-            .header(AUTHORIZATION, canvasAuthorization)
-            .retrieve()
-            .toEntity(objectClass)
-            .block(requestTimeout);
+        webClient.get().uri(uri).retrieve().toEntity(objectClass).block(requestTimeout);
     if (response != null && response.getBody() != null) {
       results.addAll(Arrays.asList(response.getBody()));
       String nextPageLink = getNextPageLink(response.getHeaders());
